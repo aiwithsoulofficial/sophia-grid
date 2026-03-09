@@ -1506,6 +1506,7 @@
     }
 
     /* ===================== MOBILE ===================== */
+    /* ===================== MOBILE - TABLET ===================== */
     @media (max-width: 700px) {
       html, body {
         overflow: auto;
@@ -1517,17 +1518,73 @@
       }
 
       .map-wrapper {
-        height: 55vh;
+        height: 60vh;
         flex: none;
       }
 
+      /* Header - compact */
+      .header {
+        padding: 10px 14px;
+        gap: 10px;
+      }
+
+      .header-title {
+        font-size: 0.9rem;
+      }
+
+      .header-subtitle {
+        font-size: 0.58rem;
+      }
+
+      .header-tagline {
+        font-size: 0.55rem;
+      }
+
+      .worldwide-counter {
+        font-size: 0.55rem !important;
+      }
+
+      .lunar-emoji {
+        font-size: 1.2rem;
+      }
+
+      .lunar-name {
+        font-size: 0.52rem;
+      }
+
+      /* Layer panel - smaller */
       .layer-panel {
         top: 8px;
         right: 8px;
-        padding: 10px 12px;
-        min-width: 160px;
+        padding: 8px 10px;
+        min-width: 140px;
       }
 
+      .layer-label {
+        font-size: 0.6rem;
+      }
+
+      /* Grid Status - compact bottom left */
+      .intention-panel {
+        bottom: 8px;
+        left: 8px;
+        padding: 10px 12px;
+        min-width: 140px;
+      }
+
+      .intention-panel .panel-title {
+        font-size: 0.65rem;
+      }
+
+      .intention-label {
+        font-size: 0.58rem;
+      }
+
+      .intention-count {
+        font-size: 0.65rem;
+      }
+
+      /* Celestial panel - full width at bottom */
       .celestial-panel {
         top: auto;
         bottom: 8px;
@@ -1541,20 +1598,79 @@
         max-height: 40vh;
       }
 
-      .intention-panel {
-        bottom: auto;
+      /* Cast panel - compact top left */
+      .cast-panel {
         top: 8px;
         left: 8px;
+        width: 180px;
       }
 
-      .cast-panel {
-        display: none;
+      .cast-toggle-btn {
+        padding: 7px 10px;
+        font-size: 0.6rem;
       }
 
+      .cast-body.open {
+        max-height: 300px;
+      }
+
+      .hashtag-pill {
+        font-size: 0.6rem;
+        padding: 3px 8px;
+      }
+
+      .share-btn {
+        font-size: 0.58rem;
+        padding: 5px 8px;
+      }
+
+      /* Events panel - compact */
       .events-panel-wrap {
-        display: none;
+        bottom: 8px;
+        right: 8px;
+        width: 200px;
       }
 
+      .events-toggle-btn {
+        padding: 7px 10px;
+        font-size: 0.6rem;
+      }
+
+      .events-body.open {
+        max-height: 280px;
+      }
+
+      /* Popups - wider on mobile for the form */
+      .leaflet-popup-content-wrapper {
+        max-width: 90vw !important;
+      }
+
+      .leaflet-popup-content {
+        margin: 10px 12px !important;
+        max-width: 75vw !important;
+      }
+
+      .popup-title {
+        font-size: 0.82rem;
+      }
+
+      /* Join form - touch friendly */
+      .join-form-input {
+        font-size: 16px !important;
+        padding: 10px !important;
+      }
+
+      .join-radio-label {
+        padding: 8px 10px;
+        font-size: 0.65rem;
+      }
+
+      .join-submit-btn {
+        padding: 12px 16px;
+        font-size: 0.75rem;
+      }
+
+      /* Info panel - 2 columns */
       .info-panel-content {
         grid-template-columns: repeat(2, 1fr);
       }
@@ -1580,13 +1696,77 @@
       .info-panel.open {
         max-height: 320px;
       }
-
-      .header-title {
-        font-size: 0.95rem;
-      }
     }
 
+    /* ===================== MOBILE - PHONE ===================== */
     @media (max-width: 480px) {
+      .map-wrapper {
+        height: 55vh;
+      }
+
+      .header {
+        padding: 8px 12px;
+      }
+
+      .header-title {
+        font-size: 0.8rem;
+      }
+
+      .header-subtitle,
+      .header-tagline {
+        font-size: 0.5rem;
+      }
+
+      /* Hide non-essential panels to keep map clean */
+      .cast-panel {
+        display: none;
+      }
+
+      .events-panel-wrap {
+        display: none;
+      }
+
+      .intention-panel {
+        padding: 8px 10px;
+        min-width: 120px;
+      }
+
+      /* Layer panel - minimal */
+      .layer-panel {
+        padding: 6px 8px;
+        min-width: 120px;
+      }
+
+      /* Popup form - full width feel */
+      .leaflet-popup-content {
+        margin: 8px 10px !important;
+        max-width: 80vw !important;
+      }
+
+      .join-form-input {
+        font-size: 16px !important;
+        padding: 12px !important;
+        border-radius: 8px;
+      }
+
+      .join-radio-group {
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .join-radio-label {
+        padding: 10px 12px;
+        font-size: 0.7rem;
+        text-align: center;
+      }
+
+      .join-submit-btn {
+        padding: 14px 16px;
+        font-size: 0.8rem;
+        border-radius: 8px;
+      }
+
+      /* Info panel - single column */
       .info-panel-content {
         grid-template-columns: 1fr;
       }
