@@ -1669,7 +1669,7 @@
       </label>
 
       <label class="layer-item">
-        <input type="checkbox" id="toggle-cities" />
+        <input type="checkbox" id="toggle-cities" checked />
         <span class="layer-dot" style="background:linear-gradient(135deg,#d4af67,#e040fb,#00bcd4); border-radius:1px;"></span>
         <span class="layer-label">Grid Cities</span>
       </label>
@@ -2965,11 +2965,11 @@ function buildJoinFormHtml(city, country, lat, lng) {
   `;
 }
 
-function buildCityPopupHtml(city, country, gridLabel, cityColor, gridReason) {
+function buildCityPopupHtml(city, country, gridLabel, cityColor, gridReason, lat, lng) {
   const cityKey = city.toLowerCase();
   const list = practitionersByCity[cityKey] || [];
   const countLine = buildPractitionerListHtml(cityKey);
-  const joinForm = buildJoinFormHtml(city, country, 0, 0); // lat/lng stored on city data
+  const joinForm = buildJoinFormHtml(city, country, lat || 0, lng || 0);
 
   return `
     <div class="popup-node-id" style="color:${cityColor}">${gridLabel}</div>
@@ -3078,14 +3078,14 @@ function rebuildCityMarkers() {
       iconAnchor: [5, 8]
     });
 
-    const popupHtml = buildCityPopupHtml(city.name, city.country, gridLabel, cityColor, city.gridReason);
+    const popupHtml = buildCityPopupHtml(city.name, city.country, gridLabel, cityColor, city.gridReason, city.lat, city.lng);
 
     const marker = L.marker([city.lat, city.lng], { icon, zIndexOffset: 200 })
       .bindPopup(popupHtml, { maxWidth: 280, minWidth: 240 });
 
     // Refresh popup content each time it opens so the list is current
     marker.on('popupopen', function() {
-      const updated = buildCityPopupHtml(city.name, city.country, gridLabel, cityColor, city.gridReason);
+      const updated = buildCityPopupHtml(city.name, city.country, gridLabel, cityColor, city.gridReason, city.lat, city.lng);
       marker.setPopupContent(updated);
     });
 
