@@ -1,0 +1,3133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPELLCASTING with Sophia</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <style>
+    /* ===================== RESET & BASE ===================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0a0a1a;
+      --surface: #151528;
+      --surface2: #1c1c35;
+      --gold: #d4af67;
+      --gold-dim: rgba(212, 175, 103, 0.15);
+      --gold-mid: rgba(212, 175, 103, 0.4);
+      --violet: #9b59b6;
+      --violet-glow: rgba(155, 89, 182, 0.35);
+      --emerald: #2ecc71;
+      --emerald-glow: rgba(46, 204, 113, 0.35);
+      --rose: #e74c3c;
+      --rose-glow: rgba(231, 76, 60, 0.35);
+      --cyan: #00bcd4;
+      --cyan-dim: rgba(0, 188, 212, 0.5);
+      --white: #f0f0f0;
+      --muted: rgba(240, 240, 240, 0.5);
+      --border: rgba(212, 175, 103, 0.2);
+      --radius: 10px;
+      --panel-bg: rgba(15, 15, 30, 0.88);
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--white);
+    }
+
+    /* ===================== LAYOUT ===================== */
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* ===================== HEADER ===================== */
+    .header {
+      flex-shrink: 0;
+      background: linear-gradient(180deg, #080815 0%, var(--surface) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      z-index: 1000;
+    }
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .header-subtitle {
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .header-tagline {
+      font-size: 0.62rem;
+      color: rgba(155, 89, 182, 0.7);
+      letter-spacing: 0.06em;
+      margin-top: 3px;
+      font-style: italic;
+    }
+
+    .lunar-display {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+
+    .lunar-emoji {
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+
+    .lunar-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      text-align: right;
+      letter-spacing: 0.06em;
+    }
+
+    /* ===================== MAP AREA ===================== */
+    .map-wrapper {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Override Leaflet attribution for dark mode */
+    .leaflet-control-attribution {
+      background: rgba(10, 10, 26, 0.7) !important;
+      color: var(--muted) !important;
+      font-size: 0.6rem !important;
+    }
+    .leaflet-control-attribution a {
+      color: var(--gold) !important;
+    }
+    .leaflet-control-zoom {
+      border: 1px solid var(--border) !important;
+    }
+    .leaflet-control-zoom a {
+      background: var(--panel-bg) !important;
+      color: var(--gold) !important;
+      border-bottom: 1px solid var(--border) !important;
+    }
+    .leaflet-control-zoom a:hover {
+      background: var(--surface2) !important;
+    }
+
+    /* ===================== FLOATING PANELS ===================== */
+    .panel {
+      position: absolute;
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 900;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.6);
+    }
+
+    /* Layer controls - top right */
+    .layer-panel {
+      top: 12px;
+      right: 12px;
+      padding: 14px 16px;
+      min-width: 190px;
+    }
+
+    .panel-title {
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .layer-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 7px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .layer-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .layer-item input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: transparent;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .layer-item input[type="checkbox"]:checked {
+      background: var(--gold);
+      border-color: var(--gold);
+    }
+
+    .layer-item input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 4px;
+      width: 4px;
+      height: 7px;
+      border: 2px solid #0a0a1a;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+
+    .layer-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .layer-label {
+      font-size: 0.72rem;
+      color: var(--white);
+      flex: 1;
+    }
+
+    /* Intention panel - bottom left */
+    .intention-panel {
+      bottom: 12px;
+      left: 12px;
+      padding: 14px 16px;
+      min-width: 170px;
+    }
+
+    .intention-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .intention-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .intention-label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .intention-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .intention-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--white);
+      font-weight: 500;
+    }
+
+    .intention-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 8px 0;
+    }
+
+    .claimed-bar-wrap {
+      margin-top: 8px;
+    }
+
+    .claimed-bar-label {
+      font-size: 0.6rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .claimed-bar {
+      height: 4px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .claimed-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--emerald), var(--violet));
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+
+    /* ===================== INFO PANEL (bottom collapsible) ===================== */
+    .info-panel-wrapper {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 900;
+    }
+
+    .info-panel {
+      background: var(--panel-bg);
+      border-top: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+      max-height: 0;
+    }
+
+    .info-panel.open {
+      max-height: 200px;
+    }
+
+    .info-panel-content {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      padding: 16px 20px;
+      overflow-y: auto;
+      max-height: 200px;
+    }
+
+    .info-section {
+      padding: 0 16px;
+      border-right: 1px solid var(--border);
+    }
+
+    .info-section:first-child {
+      padding-left: 0;
+    }
+
+    .info-section:last-child {
+      border-right: none;
+    }
+
+    .info-section-title {
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .info-section p {
+      font-size: 0.7rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .info-toggle-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 7px 20px;
+      background: var(--panel-bg);
+      border-top: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .info-toggle-bar:hover {
+      background: var(--surface2);
+    }
+
+    .info-toggle-text {
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .info-toggle-arrow {
+      font-size: 0.6rem;
+      color: var(--gold);
+      transition: transform 0.3s ease;
+    }
+
+    .info-toggle-bar.open .info-toggle-arrow {
+      transform: rotate(180deg);
+    }
+
+    /* ===================== POPUP STYLES ===================== */
+    .leaflet-popup-content-wrapper {
+      background: var(--panel-bg) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius) !important;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.7) !important;
+      backdrop-filter: blur(12px) !important;
+    }
+
+    .leaflet-popup-tip {
+      background: var(--surface) !important;
+    }
+
+    .leaflet-popup-content {
+      margin: 12px 14px !important;
+      color: var(--white) !important;
+      font-family: 'Outfit', sans-serif !important;
+    }
+
+    .popup-node-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+
+    .popup-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 2px;
+    }
+
+    .popup-sub {
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .popup-intention {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.68rem;
+      padding: 3px 8px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+    }
+
+    .popup-intention.peace {
+      background: rgba(46,204,113,0.15);
+      color: var(--emerald);
+      border: 1px solid rgba(46,204,113,0.3);
+    }
+
+    .popup-intention.protection {
+      background: rgba(155,89,182,0.15);
+      color: var(--violet);
+      border: 1px solid rgba(155,89,182,0.3);
+    }
+
+    .popup-intention.binding {
+      background: rgba(231,76,60,0.15);
+      color: var(--rose);
+      border: 1px solid rgba(231,76,60,0.3);
+    }
+
+    .popup-status {
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .popup-status span {
+      color: var(--white);
+      font-weight: 500;
+    }
+
+    .popup-btn {
+      display: block;
+      width: 100%;
+      padding: 7px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--gold);
+      background: transparent;
+      color: var(--gold);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+    }
+
+    .popup-btn:hover {
+      background: var(--gold);
+      color: var(--bg);
+    }
+
+    .popup-btn.claimed {
+      border-color: var(--emerald);
+      color: var(--emerald);
+    }
+
+    .popup-btn.claimed:hover {
+      background: var(--emerald);
+      color: var(--bg);
+    }
+
+    .popup-btn.release {
+      border-color: var(--muted);
+      color: var(--muted);
+      margin-top: 5px;
+      font-size: 0.62rem;
+    }
+
+    .popup-btn.release:hover {
+      background: rgba(255,255,255,0.08);
+      color: var(--white);
+    }
+
+    /* ===================== PULSING NODES ===================== */
+    @keyframes pulse-peace {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--emerald-glow); }
+      50% { transform: scale(1.15); box-shadow: 0 0 0 8px transparent; }
+    }
+
+    @keyframes pulse-protection {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--violet-glow); }
+      50% { transform: scale(1.15); box-shadow: 0 0 0 8px transparent; }
+    }
+
+    @keyframes pulse-binding {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--rose-glow); }
+      50% { transform: scale(1.15); box-shadow: 0 0 0 8px transparent; }
+    }
+
+    @keyframes pulse-gold {
+      0%, 100% { transform: scale(1); opacity: 0.85; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+
+    .node-marker {
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .node-marker.peace {
+      background: var(--emerald);
+      box-shadow: 0 0 6px var(--emerald);
+      animation: pulse-peace 2.5s ease-in-out infinite;
+    }
+
+    .node-marker.protection {
+      background: var(--violet);
+      box-shadow: 0 0 6px var(--violet);
+      animation: pulse-protection 2.8s ease-in-out infinite;
+    }
+
+    .node-marker.binding {
+      background: var(--rose);
+      box-shadow: 0 0 6px var(--rose);
+      animation: pulse-binding 3.1s ease-in-out infinite;
+    }
+
+    .node-marker.gold-site {
+      background: var(--gold);
+      box-shadow: 0 0 8px rgba(212,175,103,0.7);
+      animation: pulse-gold 3.5s ease-in-out infinite;
+    }
+
+    /* ===================== CITY MARKERS ===================== */
+    .city-diamond {
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-bottom: 8px solid var(--city-color, var(--gold));
+      position: relative;
+      cursor: pointer;
+      filter: drop-shadow(0 0 4px var(--city-color, rgba(212,175,103,0.7)));
+      transition: filter 0.2s ease;
+    }
+
+    .city-diamond::after {
+      content: '';
+      position: absolute;
+      left: -5px;
+      top: 8px;
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 8px solid var(--city-color, var(--gold));
+    }
+
+    .city-diamond:hover {
+      filter: drop-shadow(0 0 8px var(--city-color, rgba(212,175,103,1)));
+    }
+
+    /* ===================== CELESTIAL TIMING PANEL ===================== */
+    .celestial-panel {
+      position: absolute;
+      top: 12px;
+      right: 220px;
+      width: 300px;
+      max-height: calc(100vh - 120px);
+      z-index: 900;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .celestial-toggle-btn {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 9px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      user-select: none;
+      flex-shrink: 0;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.6);
+      transition: background 0.2s ease;
+    }
+
+    .celestial-toggle-btn:hover {
+      background: var(--surface2);
+    }
+
+    .celestial-toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .celestial-toggle-icon {
+      font-size: 0.85rem;
+    }
+
+    .celestial-toggle-arrow {
+      font-size: 0.6rem;
+      color: var(--gold);
+      transition: transform 0.3s ease;
+    }
+
+    .celestial-toggle-btn.open .celestial-toggle-arrow {
+      transform: rotate(180deg);
+    }
+
+    .celestial-body {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 32px rgba(0,0,0,0.6);
+      margin-top: 6px;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.4s ease;
+      flex-shrink: 0;
+    }
+
+    .celestial-body.open {
+      max-height: calc(100vh - 170px);
+      overflow-y: auto;
+    }
+
+    .celestial-inner {
+      padding: 14px 16px;
+    }
+
+    .celestial-next-window {
+      background: linear-gradient(135deg, rgba(212,175,103,0.12), rgba(212,175,103,0.05));
+      border: 1px solid rgba(212,175,103,0.35);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+    }
+
+    .celestial-next-label {
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.7;
+      margin-bottom: 4px;
+    }
+
+    .celestial-next-event {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--gold);
+      margin-bottom: 2px;
+    }
+
+    .celestial-next-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+
+    .celestial-next-countdown {
+      font-size: 0.65rem;
+      color: var(--violet);
+      font-weight: 500;
+    }
+
+    .celestial-section-title {
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+      margin-bottom: 8px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .power-date-card {
+      border-left: 3px solid var(--border);
+      padding: 7px 10px;
+      margin-bottom: 6px;
+      border-radius: 0 6px 6px 0;
+      background: rgba(255,255,255,0.02);
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .power-date-card:hover {
+      background: rgba(255,255,255,0.05);
+    }
+
+    .power-date-card.peace {
+      border-left-color: var(--emerald);
+    }
+
+    .power-date-card.protection {
+      border-left-color: var(--violet);
+    }
+
+    .power-date-card.binding {
+      border-left-color: var(--rose);
+    }
+
+    .power-date-card.all {
+      border-left-color: var(--gold);
+    }
+
+    .power-date-card.highlight {
+      background: rgba(212,175,103,0.08);
+      border-left-width: 4px;
+    }
+
+    .power-date-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+
+    .power-date-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+    }
+
+    .power-date-badge {
+      font-size: 0.55rem;
+      padding: 1px 6px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+    }
+
+    .power-date-badge.peace { background: rgba(46,204,113,0.15); color: var(--emerald); }
+    .power-date-badge.protection { background: rgba(155,89,182,0.15); color: var(--violet); }
+    .power-date-badge.binding { background: rgba(231,76,60,0.15); color: var(--rose); }
+    .power-date-badge.all { background: rgba(212,175,103,0.15); color: var(--gold); }
+
+    .power-date-event {
+      font-size: 0.72rem;
+      color: var(--white);
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .power-date-notes {
+      font-size: 0.62rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* Timezone popup */
+    .tz-popup {
+      display: none;
+      margin-top: 6px;
+      padding: 8px 10px;
+      background: rgba(212,175,103,0.06);
+      border: 1px solid rgba(212,175,103,0.2);
+      border-radius: 6px;
+    }
+
+    .tz-popup.open {
+      display: block;
+    }
+
+    .tz-popup-title {
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .tz-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.62rem;
+      margin-bottom: 3px;
+      gap: 8px;
+    }
+
+    .tz-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .tz-label {
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .tz-time {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--white);
+      font-weight: 500;
+      text-align: right;
+    }
+
+    .tz-no-time {
+      font-size: 0.6rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .celestial-hours {
+      margin-top: 12px;
+    }
+
+    .planetary-hour-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 0.65rem;
+      line-height: 1.4;
+    }
+
+    .planetary-hour-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    .planetary-hour-label {
+      color: var(--muted);
+    }
+
+    .planetary-hour-label strong {
+      color: var(--white);
+      font-weight: 500;
+    }
+
+    .voc-warning {
+      margin-top: 10px;
+      padding: 8px 10px;
+      background: rgba(231,76,60,0.08);
+      border: 1px solid rgba(231,76,60,0.2);
+      border-radius: 6px;
+      font-size: 0.62rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .voc-warning strong {
+      color: var(--rose);
+    }
+
+    /* ===================== STATS EXTRAS ===================== */
+    .stats-extra-row {
+      margin-top: 6px;
+    }
+
+    .stats-extra-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .stats-extra-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--gold);
+      font-weight: 500;
+    }
+
+    /* ===================== RECORD YOUR CAST PANEL ===================== */
+    .cast-panel {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      width: 210px;
+      z-index: 900;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cast-toggle-btn {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 9px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      user-select: none;
+      flex-shrink: 0;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.6);
+      transition: background 0.2s ease;
+    }
+
+    .cast-toggle-btn:hover {
+      background: var(--surface2);
+    }
+
+    .cast-toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .cast-toggle-arrow {
+      font-size: 0.6rem;
+      color: var(--gold);
+      transition: transform 0.3s ease;
+    }
+
+    .cast-toggle-btn.open .cast-toggle-arrow {
+      transform: rotate(180deg);
+    }
+
+    .cast-body {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 32px rgba(0,0,0,0.6);
+      margin-top: 6px;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.4s ease;
+    }
+
+    .cast-body.open {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .cast-inner {
+      padding: 14px 16px;
+    }
+
+    .hashtag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .hashtag-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: rgba(212,175,103,0.12);
+      border: 1px solid rgba(212,175,103,0.3);
+      color: var(--gold);
+      letter-spacing: 0.04em;
+    }
+
+    .cast-share-title {
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 7px;
+      font-weight: 600;
+    }
+
+    .cast-share-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 12px;
+    }
+
+    .share-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--white);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+      width: 100%;
+    }
+
+    .share-btn:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .share-btn .share-icon {
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .cast-counter {
+      padding: 8px 10px;
+      background: rgba(46,204,113,0.08);
+      border: 1px solid rgba(46,204,113,0.2);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .cast-counter-label {
+      font-size: 0.62rem;
+      color: var(--muted);
+    }
+
+    .cast-counter-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--emerald);
+      font-weight: 600;
+    }
+
+    .copy-feedback {
+      font-size: 0.6rem;
+      color: var(--emerald);
+      margin-top: 5px;
+      min-height: 14px;
+      transition: opacity 0.3s ease;
+    }
+
+    /* ===================== WORLD EVENTS PANEL ===================== */
+    .events-panel-wrap {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      width: 260px;
+      z-index: 900;
+      display: flex;
+      flex-direction: column-reverse;
+    }
+
+    .events-toggle-btn {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 9px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      user-select: none;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.6);
+      transition: background 0.2s ease;
+    }
+
+    .events-toggle-btn:hover {
+      background: var(--surface2);
+    }
+
+    .events-toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .events-toggle-arrow {
+      font-size: 0.6rem;
+      color: var(--gold);
+      transition: transform 0.3s ease;
+    }
+
+    .events-toggle-btn.open .events-toggle-arrow {
+      transform: rotate(180deg);
+    }
+
+    .events-body {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 32px rgba(0,0,0,0.6);
+      margin-top: 6px;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.4s ease;
+    }
+
+    .events-body.open {
+      max-height: 420px;
+      overflow-y: auto;
+    }
+
+    .events-inner {
+      padding: 14px 16px;
+    }
+
+    .events-update-note {
+      font-size: 0.6rem;
+      color: var(--muted);
+      font-style: italic;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .focus-area-card {
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      margin-bottom: 8px;
+    }
+
+    .focus-area-card:last-of-type {
+      margin-bottom: 12px;
+    }
+
+    .focus-area-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .focus-area-name {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .focus-area-status {
+      font-size: 0.55rem;
+      padding: 1px 7px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+    }
+
+    .status-watch { background: rgba(231,76,60,0.15); color: var(--rose); border: 1px solid rgba(231,76,60,0.3); }
+    .status-active { background: rgba(212,175,103,0.15); color: var(--gold); border: 1px solid rgba(212,175,103,0.3); }
+    .status-monitor { background: rgba(155,89,182,0.15); color: var(--violet); border: 1px solid rgba(155,89,182,0.3); }
+
+    .focus-area-desc {
+      font-size: 0.62rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .tracking-template {
+      padding: 8px 10px;
+      background: rgba(212,175,103,0.05);
+      border: 1px solid rgba(212,175,103,0.15);
+      border-radius: 6px;
+    }
+
+    .tracking-template-title {
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 7px;
+      font-weight: 600;
+    }
+
+    .tracking-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+      font-size: 0.62rem;
+    }
+
+    .tracking-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .tracking-phase {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      padding: 1px 7px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .phase-before { background: rgba(46,204,113,0.12); color: var(--emerald); }
+    .phase-during { background: rgba(212,175,103,0.15); color: var(--gold); }
+    .phase-after  { background: rgba(155,89,182,0.12); color: var(--violet); }
+
+    .tracking-placeholder {
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* ===================== PRACTITIONER BADGE ON CITY MARKERS ===================== */
+    .city-count-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--emerald);
+      color: #0a0a1a;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      font-weight: 700;
+      border-radius: 10px;
+      padding: 1px 5px;
+      min-width: 16px;
+      text-align: center;
+      line-height: 1.4;
+      pointer-events: none;
+    }
+
+    .city-marker-wrap {
+      position: relative;
+      display: inline-block;
+    }
+
+    /* ===================== PRACTITIONER LIST IN POPUP ===================== */
+    .practitioner-count-line {
+      font-size: 0.68rem;
+      color: var(--emerald);
+      font-weight: 600;
+      margin-bottom: 8px;
+      margin-top: 4px;
+    }
+
+    .practitioner-list {
+      list-style: none;
+      margin: 0 0 10px 0;
+      padding: 0;
+    }
+
+    .practitioner-list-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .practitioner-list-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .practitioner-intent-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .practitioner-list-item a {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .practitioner-list-item a:hover {
+      text-decoration: underline;
+    }
+
+    .practitioner-list-more {
+      font-size: 0.6rem;
+      color: var(--muted);
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+
+    /* ===================== JOIN FORM IN POPUP ===================== */
+    .join-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 10px 0;
+    }
+
+    .join-form-title {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .join-form-field {
+      margin-bottom: 7px;
+    }
+
+    .join-form-label {
+      display: block;
+      font-size: 0.6rem;
+      color: var(--muted);
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .join-form-input {
+      width: 100%;
+      background: #1a1a2e;
+      border: 1px solid var(--gold);
+      border-radius: 5px;
+      color: var(--white);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.72rem;
+      padding: 5px 8px;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    .join-form-input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(212,175,103,0.2);
+    }
+
+    .join-radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .join-radio-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.68rem;
+      color: var(--white);
+      cursor: pointer;
+    }
+
+    .join-radio-label input[type="radio"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .join-radio-label input[type="radio"]:checked {
+      border-color: currentColor;
+    }
+
+    .join-radio-label input[type="radio"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .join-radio-label.peace   { color: var(--emerald); }
+    .join-radio-label.protection { color: var(--violet); }
+    .join-radio-label.binding { color: var(--rose); }
+
+    .join-radio-label input[type="radio"].peace      { border-color: var(--emerald); color: var(--emerald); }
+    .join-radio-label input[type="radio"].protection { border-color: var(--violet);  color: var(--violet); }
+    .join-radio-label input[type="radio"].binding    { border-color: var(--rose);    color: var(--rose); }
+
+    .join-submit-btn {
+      display: block;
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: none;
+      background: var(--gold);
+      color: #0a0a1a;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      margin-top: 9px;
+      text-transform: uppercase;
+      transition: opacity 0.2s ease;
+    }
+
+    .join-submit-btn:hover {
+      opacity: 0.88;
+    }
+
+    .join-submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .join-success-msg {
+      font-size: 0.7rem;
+      color: var(--emerald);
+      font-weight: 500;
+      text-align: center;
+      padding: 8px 0;
+    }
+
+    .join-error-msg {
+      font-size: 0.65rem;
+      color: var(--rose);
+      margin-top: 5px;
+    }
+
+    /* ===================== HEADER WORLDWIDE COUNTER ===================== */
+    .worldwide-counter {
+      font-size: 0.65rem;
+      color: var(--emerald);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      margin-top: 3px;
+    }
+
+    /* ===================== MOBILE ===================== */
+    @media (max-width: 700px) {
+      html, body {
+        overflow: auto;
+      }
+
+      .app {
+        height: auto;
+        min-height: 100vh;
+      }
+
+      .map-wrapper {
+        height: 55vh;
+        flex: none;
+      }
+
+      .layer-panel {
+        top: 8px;
+        right: 8px;
+        padding: 10px 12px;
+        min-width: 160px;
+      }
+
+      .celestial-panel {
+        top: auto;
+        bottom: 8px;
+        right: 8px;
+        left: 8px;
+        width: auto;
+        max-height: 50vh;
+      }
+
+      .celestial-body.open {
+        max-height: 40vh;
+      }
+
+      .intention-panel {
+        bottom: auto;
+        top: 8px;
+        left: 8px;
+      }
+
+      .cast-panel {
+        display: none;
+      }
+
+      .events-panel-wrap {
+        display: none;
+      }
+
+      .info-panel-content {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .info-section:nth-child(2) {
+        border-right: none;
+      }
+
+      .info-section:nth-child(3) {
+        padding-left: 0;
+        border-top: 1px solid var(--border);
+        padding-top: 12px;
+        margin-top: 4px;
+      }
+
+      .info-section:nth-child(4) {
+        border-right: none;
+        border-top: 1px solid var(--border);
+        padding-top: 12px;
+        margin-top: 4px;
+      }
+
+      .info-panel.open {
+        max-height: 320px;
+      }
+
+      .header-title {
+        font-size: 0.95rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .info-panel-content {
+        grid-template-columns: 1fr;
+      }
+
+      .info-section {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 0 0 10px 0;
+        margin-bottom: 10px;
+      }
+
+      .info-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <div class="header-title">SPELLCASTING with Sophia</div>
+      <div class="header-subtitle">Peace, Protection &amp; Global Prosperity</div>
+      <div class="header-tagline">A global field of intention - anchored by practitioners worldwide</div>
+      <div class="worldwide-counter" id="worldwideCounter"></div>
+    </div>
+    <div class="lunar-display">
+      <div class="lunar-emoji" id="lunarEmoji">🌕</div>
+      <div class="lunar-name" id="lunarName">Calculating...</div>
+    </div>
+  </header>
+
+  <!-- MAP -->
+  <div class="map-wrapper">
+    <div id="map"></div>
+
+    <!-- Layer Controls Panel -->
+    <div class="panel layer-panel">
+      <div class="panel-title">Grid Layers</div>
+
+      <label class="layer-item">
+        <input type="checkbox" id="toggle-uvg" checked />
+        <span class="layer-dot" style="background:rgba(212,175,103,0.6)"></span>
+        <span class="layer-label">Becker-Hagens Grid</span>
+      </label>
+
+      <label class="layer-item">
+        <input type="checkbox" id="toggle-ley" checked />
+        <span class="layer-dot" style="background:var(--cyan)"></span>
+        <span class="layer-label">Ley Lines</span>
+      </label>
+
+      <label class="layer-item">
+        <input type="checkbox" id="toggle-sites" checked />
+        <span class="layer-dot" style="background:var(--gold)"></span>
+        <span class="layer-label">Sacred Sites</span>
+      </label>
+
+      <label class="layer-item">
+        <input type="checkbox" id="toggle-fol" checked />
+        <span class="layer-dot" style="background:rgba(212,175,103,0.5); border: 1px solid var(--gold)"></span>
+        <span class="layer-label">Flower of Life</span>
+      </label>
+
+      <label class="layer-item">
+        <input type="checkbox" id="toggle-triangle" checked />
+        <span class="layer-dot" style="background:transparent; border: 2px solid var(--gold)"></span>
+        <span class="layer-label">The Triangle</span>
+      </label>
+
+      <label class="layer-item">
+        <input type="checkbox" id="toggle-nodes" checked />
+        <span class="layer-dot" style="background:var(--emerald)"></span>
+        <span class="layer-label">Anchor Nodes</span>
+      </label>
+
+      <label class="layer-item">
+        <input type="checkbox" id="toggle-cities" />
+        <span class="layer-dot" style="background:linear-gradient(135deg,#d4af67,#e040fb,#00bcd4); border-radius:1px;"></span>
+        <span class="layer-label">Grid Cities</span>
+      </label>
+    </div>
+
+    <!-- Record Your Cast Panel -->
+    <div class="cast-panel" id="castPanel">
+      <div class="cast-toggle-btn" id="castToggleBtn">
+        <div class="cast-toggle-label">
+          <span>&#9679;</span>
+          Record Your Cast
+        </div>
+        <span class="cast-toggle-arrow">&#9650;</span>
+      </div>
+      <div class="cast-body" id="castBody">
+        <div class="cast-inner">
+          <div class="hashtag-row">
+            <span class="hashtag-pill">#SophiaGrid</span>
+          </div>
+
+          <div class="cast-share-title">Share Your Cast</div>
+          <div class="cast-share-btns">
+            <button class="share-btn" onclick="shareToTwitter()">
+              <span class="share-icon">&#120143;</span>
+              Post to X / Twitter
+            </button>
+            <button class="share-btn" onclick="copyCaption('instagram')">
+              <span class="share-icon">&#128247;</span>
+              Copy Instagram Caption
+            </button>
+            <button class="share-btn" onclick="copyCaption('tiktok')">
+              <span class="share-icon">&#127926;</span>
+              Copy TikTok Caption
+            </button>
+          </div>
+          <div class="copy-feedback" id="copyFeedback"></div>
+
+          <div class="cast-counter">
+            <span class="cast-counter-label">Practitioners Active</span>
+            <span class="cast-counter-value" id="practitionerCount">1</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Celestial Timing Panel -->
+    <div class="celestial-panel" id="celestialPanel">
+      <div class="celestial-toggle-btn" id="celestialToggleBtn">
+        <div class="celestial-toggle-label">
+          <span class="celestial-toggle-icon">&#9790;</span>
+          Celestial Timing
+        </div>
+        <span class="celestial-toggle-arrow">&#9650;</span>
+      </div>
+      <div class="celestial-body" id="celestialBody">
+        <div class="celestial-inner">
+
+          <!-- Next Power Date -->
+          <div class="celestial-next-window">
+            <div class="celestial-next-label">Next Power Window</div>
+            <div class="celestial-next-event" id="nextEventName">Loading...</div>
+            <div class="celestial-next-date" id="nextEventDate"></div>
+            <div class="celestial-next-countdown" id="nextEventCountdown"></div>
+          </div>
+
+          <!-- Power Dates Calendar -->
+          <div class="celestial-section-title">Power Dates 2026 - click for local times</div>
+          <div id="powerDatesList"></div>
+
+          <!-- Planetary Hours -->
+          <div class="celestial-hours">
+            <div class="celestial-section-title">Planetary Hours</div>
+            <div class="planetary-hour-row">
+              <span class="planetary-hour-dot" style="background:var(--emerald)"></span>
+              <span class="planetary-hour-label"><strong>Peace work</strong> - Venus hour (Friday especially)</span>
+            </div>
+            <div class="planetary-hour-row">
+              <span class="planetary-hour-dot" style="background:var(--violet)"></span>
+              <span class="planetary-hour-label"><strong>Protection work</strong> - Saturn hour (Saturday especially)</span>
+            </div>
+            <div class="planetary-hour-row">
+              <span class="planetary-hour-dot" style="background:var(--rose)"></span>
+              <span class="planetary-hour-label"><strong>Binding work</strong> - Saturn hour during waning or dark moon</span>
+            </div>
+          </div>
+
+          <!-- Void of Course Warning -->
+          <div class="voc-warning">
+            <strong>Void of Course Moon Warning</strong> - Avoid working during Void of Course Moon periods. Energy dissipates and intentions don't land. Check an ephemeris for exact times.
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- World Events Watch Panel -->
+    <div class="events-panel-wrap" id="eventsPanel">
+      <div class="events-toggle-btn" id="eventsToggleBtn">
+        <div class="events-toggle-label">
+          <span>&#127758;</span>
+          World Events Watch
+        </div>
+        <span class="events-toggle-arrow">&#9650;</span>
+      </div>
+      <div class="events-body" id="eventsBody">
+        <div class="events-inner">
+          <div class="events-update-note">Events tracked and updated each spellcast cycle.</div>
+
+          <div class="focus-area-card">
+            <div class="focus-area-header">
+              <span class="focus-area-name">Iran</span>
+              <span class="focus-area-status status-watch">Watch</span>
+            </div>
+            <div class="focus-area-desc">Nuclear negotiations, internal unrest and regional influence remain active focus areas. Spellcast intention: protection for civilians, dissolution of systems of harm.</div>
+          </div>
+
+          <div class="focus-area-card">
+            <div class="focus-area-header">
+              <span class="focus-area-name">Israel / Gaza</span>
+              <span class="focus-area-status status-watch">Watch</span>
+            </div>
+            <div class="focus-area-desc">Ongoing humanitarian crisis. Spellcast intention: ceasefire, protection of civilians, compassionate resolution through international pressure.</div>
+          </div>
+
+          <div class="focus-area-card">
+            <div class="focus-area-header">
+              <span class="focus-area-name">USA</span>
+              <span class="focus-area-status status-active">Active</span>
+            </div>
+            <div class="focus-area-desc">Political and social polarisation. Spellcast intention: restoration of democratic values, protection of vulnerable communities, leadership alignment with justice.</div>
+          </div>
+
+          <div class="focus-area-card">
+            <div class="focus-area-header">
+              <span class="focus-area-name">Global Climate</span>
+              <span class="focus-area-status status-monitor">Monitor</span>
+            </div>
+            <div class="focus-area-desc">Escalating extreme weather events. Grid work: anchoring Earth healing energy at node intersections, especially Oceania, South America, and Africa nodes.</div>
+          </div>
+
+          <div class="tracking-template">
+            <div class="tracking-template-title">Spellcast Tracking Template</div>
+            <div class="tracking-row">
+              <span class="tracking-phase phase-before">Before</span>
+              <span class="tracking-placeholder">Note current conditions, set precise intention</span>
+            </div>
+            <div class="tracking-row">
+              <span class="tracking-phase phase-during">During</span>
+              <span class="tracking-placeholder">Hold intention 11+ min, anchor to grid node</span>
+            </div>
+            <div class="tracking-row">
+              <span class="tracking-phase phase-after">After</span>
+              <span class="tracking-placeholder">Record shifts, signs, synchronicities within 72h</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Intention Panel -->
+    <div class="panel intention-panel" id="intentionPanel">
+      <div class="panel-title">Grid Status</div>
+
+      <div class="intention-row">
+        <span class="intention-label">
+          <span class="intention-dot" style="background:var(--white); opacity:0.4"></span>
+          Total Nodes
+        </span>
+        <span class="intention-count" id="countTotal">0</span>
+      </div>
+
+      <div class="intention-divider"></div>
+
+      <div class="intention-row">
+        <span class="intention-label">
+          <span class="intention-dot" style="background:var(--emerald)"></span>
+          Peace
+        </span>
+        <span class="intention-count" id="countPeace" style="color:var(--emerald)">0</span>
+      </div>
+
+      <div class="intention-row">
+        <span class="intention-label">
+          <span class="intention-dot" style="background:var(--violet)"></span>
+          Protection
+        </span>
+        <span class="intention-count" id="countProtection" style="color:var(--violet)">0</span>
+      </div>
+
+      <div class="intention-row">
+        <span class="intention-label">
+          <span class="intention-dot" style="background:var(--rose)"></span>
+          Binding
+        </span>
+        <span class="intention-count" id="countBinding" style="color:var(--rose)">0</span>
+      </div>
+
+      <div class="intention-divider"></div>
+
+      <div class="intention-row">
+        <span class="intention-label">Claimed</span>
+        <span class="intention-count" id="countClaimed">0 / 0</span>
+      </div>
+
+      <div class="claimed-bar-wrap">
+        <div class="claimed-bar">
+          <div class="claimed-bar-fill" id="claimedBarFill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="intention-divider"></div>
+
+      <div class="stats-extra-row">
+        <div class="stats-extra-label">Moon Phase</div>
+        <div class="stats-extra-value" id="statsMoonPhase">...</div>
+      </div>
+
+      <div class="stats-extra-row">
+        <div class="stats-extra-label">Next Power Date</div>
+        <div class="stats-extra-value" id="statsNextPower">...</div>
+      </div>
+
+      <div class="stats-extra-row">
+        <div class="stats-extra-label">Days Until</div>
+        <div class="stats-extra-value" id="statsDaysUntil">...</div>
+      </div>
+    </div>
+
+    <!-- Info Panel Wrapper -->
+    <div class="info-panel-wrapper">
+      <div class="info-panel" id="infoPanel">
+        <div class="info-panel-content">
+          <div class="info-section">
+            <div class="info-section-title">What Is This?</div>
+            <p>The Sophia Grid maps Earth's energetic architecture - the invisible geometric framework that organises planetary consciousness. Practitioners worldwide anchor spellcasting intentions at key nodes to weave a living field of peace, protection and global prosperity.</p>
+          </div>
+          <div class="info-section">
+            <div class="info-section-title">The Grid</div>
+            <p>The Becker-Hagens UVG (Unified Vector Geometry) grid describes 62 points of concentrated Earth energy, first mapped by researchers William Becker and Bethe Hagens. These nodes correspond to volcanic hotspots, ancient sacred sites, and electromagnetic anomalies.</p>
+          </div>
+          <div class="info-section">
+            <div class="info-section-title">Ley Lines</div>
+            <p>Ley lines are alignments of ancient sites and natural landscape features. The St. Michael-Apollo line runs from Ireland through sacred sites to Israel. The Giza alignments connect the great pyramid to major power centres across three continents.</p>
+          </div>
+          <div class="info-section">
+            <div class="info-section-title">How to Participate</div>
+            <p>Click any pulsing anchor node and select "Claim This Node." Set your spellcasting intention - Peace (green), Protection (violet), or Binding (rose). Hold your intention in meditation for at least 11 minutes, anchoring light at that geographic point. Share with #SophiaGrid.</p>
+          </div>
+        </div>
+      </div>
+      <div class="info-toggle-bar" id="infoToggle">
+        <span class="info-toggle-text">About the Grid</span>
+        <span class="info-toggle-arrow">&#9650;</span>
+      </div>
+    </div>
+
+  </div><!-- /map-wrapper -->
+
+</div><!-- /app -->
+
+<script>
+// =====================================================================
+// LUNAR PHASE CALCULATOR
+// =====================================================================
+(function() {
+  function getLunarPhase(date) {
+    const knownNewMoon = new Date(2000, 0, 6, 18, 14, 0);
+    const synodicPeriod = 29.530588853;
+    const elapsed = (date - knownNewMoon) / (1000 * 60 * 60 * 24);
+    const phase = ((elapsed % synodicPeriod) + synodicPeriod) % synodicPeriod;
+    const fraction = phase / synodicPeriod;
+
+    if (fraction < 0.025 || fraction >= 0.975) return { emoji: '🌑', name: 'New Moon' };
+    if (fraction < 0.25)  return { emoji: '🌒', name: 'Waxing Crescent' };
+    if (fraction < 0.275) return { emoji: '🌓', name: 'First Quarter' };
+    if (fraction < 0.475) return { emoji: '🌔', name: 'Waxing Gibbous' };
+    if (fraction < 0.525) return { emoji: '🌕', name: 'Full Moon' };
+    if (fraction < 0.725) return { emoji: '🌖', name: 'Waning Gibbous' };
+    if (fraction < 0.775) return { emoji: '🌗', name: 'Last Quarter' };
+    return { emoji: '🌘', name: 'Waning Crescent' };
+  }
+
+  const lunar = getLunarPhase(new Date());
+  document.getElementById('lunarEmoji').textContent = lunar.emoji;
+  document.getElementById('lunarName').textContent = lunar.name;
+})();
+
+// =====================================================================
+// INFO PANEL TOGGLE
+// =====================================================================
+const infoToggle = document.getElementById('infoToggle');
+const infoPanel = document.getElementById('infoPanel');
+infoToggle.addEventListener('click', function() {
+  const isOpen = infoPanel.classList.toggle('open');
+  infoToggle.classList.toggle('open', isOpen);
+});
+
+// =====================================================================
+// MAP INITIALISATION
+// =====================================================================
+const map = L.map('map', {
+  center: [20, 0],
+  zoom: 2,
+  minZoom: 2,
+  maxZoom: 10,
+  zoomControl: true,
+  worldCopyJump: true
+});
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19
+}).addTo(map);
+
+// =====================================================================
+// DATA - UVG NODES
+// =====================================================================
+const uvgNodes = {
+  1:  [31.72,  31.20],
+  2:  [52.62,  31.20],
+  8:  [52.62, -112.80],
+  9:  [58.28,  -76.80],
+  10: [52.62,  -40.80],
+  11: [58.28,   -4.80],
+  12: [26.57,   67.20],
+  17: [31.72, -112.80],
+  18: [26.57,  -76.80],
+  19: [31.72,  -40.80],
+  20: [26.57,   -4.80],
+  21: [10.81,   31.20],
+  61: [90.00,    0.00]
+};
+
+const uvgEdges = [
+  [1, 12],
+  [1, 20],
+  [20, 19],
+  [19, 18],
+  [18, 17],
+  [17, 8],
+  [1, 2],
+  [2, 11],
+  [11, 10],
+  [10, 9],
+  [9, 8],
+  [2, 10],
+  [1, 21],
+  [2, 61],
+  [11, 61],
+  [8, 61],
+  [1, 11],
+  [12, 21],
+  [20, 21]
+];
+
+// =====================================================================
+// DATA - LEY LINES
+// =====================================================================
+const leyLines = [
+  {
+    name: 'St. Michael - Apollo Line',
+    points: [
+      [51.77, -10.54],
+      [48.64,  -1.51],
+      [43.73,   7.27],
+      [37.97,  23.73],
+      [37.94,  27.36],
+      [32.74,  34.98]
+    ]
+  },
+  {
+    name: "Giza - Jerusalem - Xi'an",
+    points: [
+      [29.98, 31.09],
+      [31.78, 35.24],
+      [34.26, 108.94]
+    ]
+  },
+  {
+    name: 'Giza - Serpent Mound Arc',
+    points: [
+      [29.98,  31.09],
+      [41.90,  12.50],
+      [47.66,  -2.76],
+      [39.03, -83.43]
+    ]
+  },
+  {
+    name: 'Persepolis Alignment',
+    points: [
+      [29.93, 52.89],
+      [34.01, 36.20],
+      [35.30, 25.16],
+      [35.90, 14.44]
+    ]
+  }
+];
+
+// =====================================================================
+// DATA - SACRED SITES
+// =====================================================================
+const sacredSites = [
+  // Iran
+  { name: 'Persepolis',       region: 'Iran',   lat: 29.9341,   lng:  52.8915 },
+  { name: 'Isfahan',          region: 'Iran',   lat: 32.6546,   lng:  51.6680 },
+  { name: 'Pasargadae',       region: 'Iran',   lat: 30.1944,   lng:  53.1670 },
+  { name: 'Chogha Zanbil',    region: 'Iran',   lat: 32.0094,   lng:  48.5219 },
+  { name: 'Takht-e Soleyman', region: 'Iran',   lat: 36.6036,   lng:  47.2358 },
+  // Israel
+  { name: 'Temple Mount',     region: 'Israel', lat: 31.7781,   lng:  35.2354 },
+  { name: 'Mount Carmel',     region: 'Israel', lat: 32.7400,   lng:  34.9800 },
+  { name: 'Megiddo',          region: 'Israel', lat: 32.5847,   lng:  35.1847 },
+  { name: 'Mount Tabor',      region: 'Israel', lat: 32.6869,   lng:  35.3917 },
+  { name: 'Masada',           region: 'Israel', lat: 31.3156,   lng:  35.3536 },
+  // USA
+  { name: 'Sedona Airport Mesa', region: 'USA', lat: 34.8586,   lng: -111.7713 },
+  { name: 'Sedona Bell Rock',    region: 'USA', lat: 34.8076,   lng: -111.7712 },
+  { name: 'Mount Shasta',        region: 'USA', lat: 41.3099,   lng: -122.3106 },
+  { name: 'Serpent Mound',       region: 'USA', lat: 39.0253,   lng:  -83.4303 },
+  { name: 'Cahokia Mounds',      region: 'USA', lat: 38.6600,   lng:  -90.0600 }
+];
+
+// =====================================================================
+// DATA - FLOWER OF LIFE CENTERS
+// =====================================================================
+const folCenters = [
+  { name: 'Jerusalem', lat: 31.78, lng: 35.24, radiusKm: 500, prefix: 'JER' },
+  { name: 'Persepolis - Isfahan', lat: 31.29, lng: 52.28, radiusKm: 400, prefix: 'PER' },
+  { name: 'Sedona', lat: 34.86, lng: -111.77, radiusKm: 400, prefix: 'SED' }
+];
+
+const trianglePoints = [
+  [31.78, 35.24],
+  [29.93, 52.89],
+  [34.86, -111.77]
+];
+
+// =====================================================================
+// LAYER GROUPS
+// =====================================================================
+const layerGroups = {
+  uvg:      L.layerGroup(),
+  ley:      L.layerGroup(),
+  sites:    L.layerGroup(),
+  fol:      L.layerGroup(),
+  triangle: L.layerGroup(),
+  nodes:    L.layerGroup(),
+  cities:   L.layerGroup()
+};
+
+Object.values(layerGroups).forEach(lg => lg.addTo(map));
+
+// =====================================================================
+// DRAW UVG GRID
+// =====================================================================
+uvgEdges.forEach(([a, b]) => {
+  const pa = uvgNodes[a];
+  const pb = uvgNodes[b];
+  if (!pa || !pb) return;
+  L.polyline([pa, pb], {
+    color: 'rgba(212,175,103,0.28)',
+    weight: 1,
+    opacity: 1,
+    dashArray: '4, 6'
+  }).addTo(layerGroups.uvg);
+});
+
+Object.entries(uvgNodes).forEach(([id, pos]) => {
+  L.circleMarker(pos, {
+    radius: 3,
+    color: 'rgba(212,175,103,0.8)',
+    fillColor: 'rgba(212,175,103,0.4)',
+    fillOpacity: 1,
+    weight: 1
+  }).bindTooltip(`UVG Node ${id}`, {
+    className: '',
+    direction: 'top',
+    offset: [0, -5]
+  }).addTo(layerGroups.uvg);
+});
+
+// =====================================================================
+// DRAW LEY LINES
+// =====================================================================
+leyLines.forEach(line => {
+  L.polyline(line.points, {
+    color: 'rgba(0,188,212,0.55)',
+    weight: 1.5,
+    opacity: 1,
+    dashArray: '8, 5'
+  }).bindTooltip(line.name, { sticky: true }).addTo(layerGroups.ley);
+
+  line.points.forEach(pt => {
+    L.circleMarker(pt, {
+      radius: 3,
+      color: 'rgba(0,188,212,0.9)',
+      fillColor: 'rgba(0,188,212,0.5)',
+      fillOpacity: 1,
+      weight: 1
+    }).addTo(layerGroups.ley);
+  });
+});
+
+// =====================================================================
+// DRAW SACRED SITES
+// =====================================================================
+const regionColors = { Iran: '#f39c12', Israel: '#8e44ad', USA: '#27ae60' };
+
+sacredSites.forEach(site => {
+  const color = regionColors[site.region] || '#d4af67';
+
+  const icon = L.divIcon({
+    className: '',
+    html: `<div class="node-marker gold-site" style="width:8px;height:8px;background:${color};box-shadow:0 0 6px ${color};"></div>`,
+    iconSize: [8, 8],
+    iconAnchor: [4, 4]
+  });
+
+  L.marker([site.lat, site.lng], { icon })
+    .bindPopup(`
+      <div class="popup-node-id">${site.region.toUpperCase()}</div>
+      <div class="popup-title">${site.name}</div>
+      <div class="popup-sub">${site.lat.toFixed(4)}&deg;N, ${Math.abs(site.lng).toFixed(4)}&deg;${site.lng >= 0 ? 'E' : 'W'}</div>
+    `, { maxWidth: 220 })
+    .addTo(layerGroups.sites);
+});
+
+// =====================================================================
+// HELPER - km to degrees
+// =====================================================================
+function kmToLatDeg(km) {
+  return km / 111.32;
+}
+function kmToLngDeg(km, lat) {
+  return km / (111.32 * Math.cos(lat * Math.PI / 180));
+}
+
+// =====================================================================
+// DRAW FLOWER OF LIFE OVERLAYS
+// =====================================================================
+const anchorNodes = [];
+const INTENTION_TYPES = ['peace', 'protection', 'binding'];
+
+function drawFlowerOfLifeReal(center, radiusKm, prefix, groupLayer) {
+  const radiusM = radiusKm * 1000;
+  const innerRadiusM = radiusM / 2;
+
+  const circleStyle = {
+    color: 'rgba(212,175,103,0.22)',
+    weight: 0.8,
+    fill: false,
+    opacity: 1,
+    interactive: false
+  };
+
+  const circles = [{ lat: center.lat, lng: center.lng, r: innerRadiusM }];
+
+  for (let i = 0; i < 6; i++) {
+    const angle = (i * 60) * Math.PI / 180;
+    const dLat = (innerRadiusM / 111320) * Math.cos(angle);
+    const dLng = (innerRadiusM / (111320 * Math.cos(center.lat * Math.PI / 180))) * Math.sin(angle);
+    circles.push({ lat: center.lat + dLat, lng: center.lng + dLng, r: innerRadiusM });
+  }
+
+  for (let i = 0; i < 6; i++) {
+    const angle = (i * 60) * Math.PI / 180;
+    const dLat = (radiusM / 111320) * Math.cos(angle);
+    const dLng = (radiusM / (111320 * Math.cos(center.lat * Math.PI / 180))) * Math.sin(angle);
+    circles.push({ lat: center.lat + dLat, lng: center.lng + dLng, r: innerRadiusM });
+  }
+
+  for (let i = 0; i < 6; i++) {
+    const angle = (i * 60 + 30) * Math.PI / 180;
+    const dLat = (radiusM / 111320) * Math.cos(angle);
+    const dLng = (radiusM / (111320 * Math.cos(center.lat * Math.PI / 180))) * Math.sin(angle);
+    circles.push({ lat: center.lat + dLat, lng: center.lng + dLng, r: innerRadiusM });
+  }
+
+  circles.forEach(c => {
+    L.circle([c.lat, c.lng], { ...circleStyle, radius: c.r }).addTo(groupLayer);
+  });
+
+  let nodeIndex = 0;
+
+  for (let i = 0; i < 6; i++) {
+    const angle = (i * 60 + 30) * Math.PI / 180;
+    const dist = innerRadiusM * 0.866;
+    const dLat = (dist / 111320) * Math.cos(angle);
+    const dLng = (dist / (111320 * Math.cos(center.lat * Math.PI / 180))) * Math.sin(angle);
+    anchorNodes.push({
+      id: `${prefix}-${String(nodeIndex + 1).padStart(2, '0')}`,
+      prefix,
+      centerName: center.name,
+      lat: center.lat + dLat,
+      lng: center.lng + dLng,
+      intention: INTENTION_TYPES[nodeIndex % 3],
+      nodeIndex: nodeIndex
+    });
+    nodeIndex++;
+  }
+
+  for (let i = 0; i < 6; i++) {
+    const angle1 = (i * 60) * Math.PI / 180;
+    const angle2 = ((i + 1) * 60) * Math.PI / 180;
+    const lat1 = center.lat + (innerRadiusM / 111320) * Math.cos(angle1);
+    const lng1 = center.lng + (innerRadiusM / (111320 * Math.cos(center.lat * Math.PI / 180))) * Math.sin(angle1);
+    const lat2 = center.lat + (innerRadiusM / 111320) * Math.cos(angle2);
+    const lng2 = center.lng + (innerRadiusM / (111320 * Math.cos(center.lat * Math.PI / 180))) * Math.sin(angle2);
+    anchorNodes.push({
+      id: `${prefix}-${String(nodeIndex + 1).padStart(2, '0')}`,
+      prefix,
+      centerName: center.name,
+      lat: (lat1 + lat2) / 2,
+      lng: (lng1 + lng2) / 2,
+      intention: INTENTION_TYPES[nodeIndex % 3],
+      nodeIndex: nodeIndex
+    });
+    nodeIndex++;
+  }
+}
+
+folCenters.forEach(c => drawFlowerOfLifeReal(c, c.radiusKm, c.prefix, layerGroups.fol));
+
+// =====================================================================
+// DRAW THE TRIANGLE
+// =====================================================================
+L.polyline([
+  trianglePoints[0],
+  trianglePoints[1],
+  trianglePoints[2],
+  trianglePoints[0]
+], {
+  color: 'rgba(212,175,103,0.75)',
+  weight: 2,
+  dashArray: '10, 7',
+  opacity: 1
+}).addTo(layerGroups.triangle);
+
+const triangleLabels = ['Jerusalem', 'Persepolis', 'Sedona'];
+trianglePoints.forEach((pt, i) => {
+  L.circleMarker(pt, {
+    radius: 6,
+    color: 'rgba(212,175,103,1)',
+    fillColor: 'rgba(212,175,103,0.3)',
+    fillOpacity: 1,
+    weight: 1.5
+  }).bindTooltip(triangleLabels[i], {
+    permanent: false,
+    direction: 'top',
+    offset: [0, -8]
+  }).addTo(layerGroups.triangle);
+});
+
+// =====================================================================
+// PRACTITIONER ANCHOR NODES
+// =====================================================================
+const intentionColors = {
+  peace:      '#2ecc71',
+  protection: '#9b59b6',
+  binding:    '#e74c3c'
+};
+
+const intentionLabels = {
+  peace:      'Peace',
+  protection: 'Protection',
+  binding:    'Binding'
+};
+
+function getClaimedNodes() {
+  try {
+    return JSON.parse(localStorage.getItem('sophia-grid-claimed') || '{}');
+  } catch(e) {
+    return {};
+  }
+}
+
+function saveClaimedNodes(data) {
+  try {
+    localStorage.setItem('sophia-grid-claimed', JSON.stringify(data));
+  } catch(e) {}
+}
+
+let claimedNodes = getClaimedNodes();
+
+function claimNode(nodeId) {
+  claimedNodes[nodeId] = { claimedAt: Date.now() };
+  saveClaimedNodes(claimedNodes);
+  updateStats();
+  updatePractitionerCount();
+}
+
+function releaseNode(nodeId) {
+  delete claimedNodes[nodeId];
+  saveClaimedNodes(claimedNodes);
+  updateStats();
+  updatePractitionerCount();
+}
+
+function isNodeClaimed(nodeId) {
+  return !!claimedNodes[nodeId];
+}
+
+const nodeMarkers = {};
+
+anchorNodes.forEach(node => {
+  const claimed = isNodeClaimed(node.id);
+
+  const icon = L.divIcon({
+    className: '',
+    html: `<div class="node-marker ${node.intention}" id="nm-${node.id}" style="width:10px;height:10px;${claimed ? 'opacity:1;transform:scale(1.4);' : ''}"></div>`,
+    iconSize: [10, 10],
+    iconAnchor: [5, 5]
+  });
+
+  const marker = L.marker([node.lat, node.lng], { icon, zIndexOffset: 500 });
+
+  marker.bindPopup(buildNodePopup(node), { maxWidth: 240, minWidth: 200 });
+
+  marker.on('click', function() {
+    marker.setPopupContent(buildNodePopup(node));
+  });
+
+  nodeMarkers[node.id] = { marker, node };
+  marker.addTo(layerGroups.nodes);
+});
+
+window.handleClaim = function(nodeId) {
+  claimNode(nodeId);
+  const entry = nodeMarkers[nodeId];
+  if (entry) {
+    entry.marker.setPopupContent(buildNodePopup(entry.node));
+  }
+};
+
+window.handleRelease = function(nodeId) {
+  releaseNode(nodeId);
+  const entry = nodeMarkers[nodeId];
+  if (entry) {
+    entry.marker.setPopupContent(buildNodePopup(entry.node));
+  }
+};
+
+function buildNodePopup(n) {
+  const claimed = isNodeClaimed(n.id);
+  return `
+    <div class="popup-node-id">${n.id}</div>
+    <div class="popup-title">${n.centerName} Grid</div>
+    <div class="popup-sub">Vesica Node ${n.nodeIndex + 1}</div>
+    <div class="popup-intention ${n.intention}">
+      <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+      ${intentionLabels[n.intention]}
+    </div>
+    <div class="popup-status">Status: <span>${claimed ? 'Claimed' : 'Available'}</span></div>
+    ${!claimed
+      ? `<button class="popup-btn" onclick="handleClaim('${n.id}')">Claim This Node</button>`
+      : `<button class="popup-btn claimed" onclick="handleClaim('${n.id}')">Node Held</button>
+         <button class="popup-btn release" onclick="handleRelease('${n.id}')">Release Node</button>`
+    }
+  `;
+}
+
+// =====================================================================
+// STATS PANEL
+// =====================================================================
+function updateStats() {
+  const total = anchorNodes.length;
+  const peace = anchorNodes.filter(n => n.intention === 'peace').length;
+  const protection = anchorNodes.filter(n => n.intention === 'protection').length;
+  const binding = anchorNodes.filter(n => n.intention === 'binding').length;
+  const claimed = Object.keys(claimedNodes).length;
+
+  document.getElementById('countTotal').textContent = total;
+  document.getElementById('countPeace').textContent = peace;
+  document.getElementById('countProtection').textContent = protection;
+  document.getElementById('countBinding').textContent = binding;
+  document.getElementById('countClaimed').textContent = `${claimed} / ${total}`;
+  document.getElementById('claimedBarFill').style.width = `${total > 0 ? (claimed / total) * 100 : 0}%`;
+}
+
+updateStats();
+
+// =====================================================================
+// LAYER TOGGLES
+// =====================================================================
+function setupToggle(checkboxId, layerKey) {
+  const cb = document.getElementById(checkboxId);
+  if (!cb) return;
+  cb.addEventListener('change', function() {
+    if (this.checked) {
+      layerGroups[layerKey].addTo(map);
+    } else {
+      map.removeLayer(layerGroups[layerKey]);
+    }
+  });
+}
+
+setupToggle('toggle-uvg',      'uvg');
+setupToggle('toggle-ley',      'ley');
+setupToggle('toggle-sites',    'sites');
+setupToggle('toggle-fol',      'fol');
+setupToggle('toggle-triangle', 'triangle');
+setupToggle('toggle-nodes',    'nodes');
+setupToggle('toggle-cities',   'cities');
+
+// =====================================================================
+// DATA - CITIES (real earth grid alignment data)
+// =====================================================================
+// gridType color map:
+//   uvg-vertex   = bright gold    #d4af67
+//   earth-chakra = white          #f0f0f0
+//   apollo-axis  = cyan           #00bcd4
+//   ley-line     = cyan           #00bcd4
+//   dragon-line  = magenta        #e040fb
+//   sacred-site  = amber          #ffb300
+//   grid-path    = dim gold       #a08840
+const gridTypeColorMap = {
+  'uvg-vertex':   '#d4af67',
+  'earth-chakra': '#f0f0f0',
+  'apollo-axis':  '#00bcd4',
+  'ley-line':     '#00bcd4',
+  'dragon-line':  '#e040fb',
+  'sacred-site':  '#ffb300',
+  'grid-path':    '#a08840'
+};
+
+const citiesData = [
+  // UVG VERTEX CITIES
+  { name: 'Cairo',          country: 'Egypt',        region: 'UVG Vertices',   gridType: 'uvg-vertex',   lat:  30.04,  lng:  31.24, gridReason: 'UVG Vertex 1 - Throat Chakra zone, near Giza - one of the most powerful grid anchors on Earth' },
+  { name: 'Alexandria',     country: 'Egypt',        region: 'UVG Vertices',   gridType: 'uvg-vertex',   lat:  31.20,  lng:  29.92, gridReason: 'UVG Vertex 1 - Mediterranean grid anchor serving the same primary vertex zone as Cairo' },
+  { name: 'Kyiv',           country: 'Ukraine',      region: 'UVG Vertices',   gridType: 'uvg-vertex',   lat:  50.45,  lng:  30.52, gridReason: 'UVG Vertex 2 - Eastern European grid node, one of the primary northern hemisphere anchors' },
+  { name: 'Tyumen',         country: 'Russia',       region: 'UVG Vertices',   gridType: 'uvg-vertex',   lat:  57.15,  lng:  65.53, gridReason: 'UVG Vertex 3 - Siberian grid anchor at the crossroads of major Asian ley corridors' },
+  { name: 'Irkutsk',        country: 'Russia',       region: 'UVG Vertices',   gridType: 'uvg-vertex',   lat:  52.29,  lng: 104.28, gridReason: 'UVG Vertex 4 - Lake Baikal energy vortex, the worlds deepest lake acts as a planetary capacitor' },
+  { name: 'Inverness',      country: 'Scotland',     region: 'UVG Vertices',   gridType: 'uvg-vertex',   lat:  57.48,  lng:  -4.22, gridReason: 'UVG Vertex 11 - Scottish Highlands grid node near the Loch Ness energy field and Pictish sacred sites' },
+  { name: 'Karachi',        country: 'Pakistan',     region: 'UVG Vertices',   gridType: 'uvg-vertex',   lat:  24.86,  lng:  67.01, gridReason: 'UVG Vertex 12 - Indus Valley grid anchor, gateway to one of the oldest continuous civilisations' },
+  { name: 'Chengdu',        country: 'China',        region: 'UVG Vertices',   gridType: 'uvg-vertex',   lat:  30.57,  lng: 104.07, gridReason: 'UVG Vertex 13 - Himalayan energy field, situated between Tibetan plateau and Chinese heartland' },
+  { name: 'Tucson',         country: 'USA',          region: 'UVG Vertices',   gridType: 'uvg-vertex',   lat:  32.22,  lng:-110.97, gridReason: 'UVG Vertex 17 - Sonoran Desert vortex zone, near the ancient Hohokam sacred landscape' },
+  { name: 'Nassau',         country: 'Bahamas',      region: 'UVG Vertices',   gridType: 'uvg-vertex',   lat:  25.05,  lng: -77.35, gridReason: 'UVG Vertex 18 - Bermuda Triangle energy zone, one of the most electromagnetically anomalous points on the grid' },
+  { name: 'Juba',           country: 'South Sudan',  region: 'UVG Vertices',   gridType: 'uvg-vertex',   lat:   4.85,  lng:  31.58, gridReason: 'UVG Vertex 21 - Nile energy corridor where the White and Blue Nile forces converge in the grid field' },
+  { name: 'Phnom Penh',     country: 'Cambodia',     region: 'UVG Vertices',   gridType: 'uvg-vertex',   lat:  11.56,  lng: 104.92, gridReason: 'UVG Vertex 25 - Near Angkor Wat grid point, capital city sits at the base of one of Earth\'s greatest temple complexes' },
+  { name: 'Papeete',        country: 'Tahiti',       region: 'UVG Vertices',   gridType: 'uvg-vertex',   lat: -17.53,  lng:-149.57, gridReason: 'UVG Vertex 31 - Pacific grid anchor, the geometric centre of the Pacific Ocean energy field' },
+  { name: 'Lima',           country: 'Peru',         region: 'UVG Vertices',   gridType: 'uvg-vertex',   lat: -12.05,  lng: -77.04, gridReason: 'UVG Vertex 35 - Peruvian Highlands grid node, coastal access point to the Andean sacred mountain network' },
+  { name: 'Libreville',     country: 'Gabon',        region: 'UVG Vertices',   gridType: 'uvg-vertex',   lat:   0.39,  lng:   9.45, gridReason: 'UVG Vertex 40 - Equatorial African grid anchor sitting precisely on the equator where maximum rotational energy concentrates' },
+  { name: 'Adelaide',       country: 'Australia',    region: 'UVG Vertices',   gridType: 'uvg-vertex',   lat: -34.93,  lng: 138.60, gridReason: 'UVG Vertex 44 - Southern Australian grid node, energetic gateway between the Uluru field and the Southern Ocean' },
+  { name: 'Edmonton',       country: 'Canada',       region: 'UVG Vertices',   gridType: 'uvg-vertex',   lat:  53.55,  lng:-113.49, gridReason: 'UVG Vertex 8 - North American grid anchor in the boreal zone, connecting the Arctic energy field to the continental grid' },
+  { name: 'Punta Arenas',   country: 'Chile',        region: 'UVG Vertices',   gridType: 'uvg-vertex',   lat: -53.15,  lng: -70.92, gridReason: 'UVG Vertex 58 - Patagonian grid anchor, one of the southernmost inhabited vertices on the planetary grid' },
+
+  // EARTH CHAKRA CITIES
+  { name: 'Mt Shasta',      country: 'USA',          region: 'Earth Chakras',  gridType: 'earth-chakra', lat:  41.31,  lng:-122.31, gridReason: 'Earth Root Chakra - base of planetary kundalini, the mountain activates the first chakra of the living Earth body' },
+  { name: 'Puno',           country: 'Peru',         region: 'Earth Chakras',  gridType: 'earth-chakra', lat: -15.84,  lng: -70.02, gridReason: 'Earth Sacral Chakra - Lake Titicaca, the highest navigable lake holds the creative waters of planetary consciousness' },
+  { name: 'Alice Springs',  country: 'Australia',    region: 'Earth Chakras',  gridType: 'earth-chakra', lat: -23.70,  lng: 133.88, gridReason: 'Earth Solar Plexus Chakra - near Uluru, the great red rock radiates the will-force of the planet' },
+  { name: 'Glastonbury',    country: 'England',      region: 'Earth Chakras',  gridType: 'earth-chakra', lat:  51.15,  lng:  -2.71, gridReason: 'Earth Heart Chakra - Avalon, the most potent heart-field on the planetary body, seat of the Grail current' },
+  { name: 'Jerusalem',      country: 'Israel',       region: 'Earth Chakras',  gridType: 'earth-chakra', lat:  31.77,  lng:  35.23, gridReason: 'Earth Throat Chakra - Mount of Olives, where the Word made flesh meets the Word of the land' },
+  { name: 'Zahedan',        country: 'Iran',         region: 'Earth Chakras',  gridType: 'earth-chakra', lat:  29.50,  lng:  60.86, gridReason: 'Earth Third Eye Chakra - the tripoint region of Iran, Pakistan and Afghanistan is the planetary third eye activation zone' },
+  { name: 'Darchen',        country: 'Tibet',        region: 'Earth Chakras',  gridType: 'earth-chakra', lat:  31.02,  lng:  81.29, gridReason: 'Earth Crown Chakra - Mt Kailash, the most sacred mountain on Earth, the crown of the planetary being, unmapped by satellites' },
+
+  // APOLLO / ST MICHAEL AXIS CITIES
+  { name: 'Dingle',         country: 'Ireland',      region: 'Apollo Axis',    gridType: 'apollo-axis',  lat:  52.14,  lng: -10.27, gridReason: 'Near Skellig Michael - the Apollo Axis begins here at the westernmost sacred island of the ancient world' },
+  { name: 'Penzance',       country: 'England',      region: 'Apollo Axis',    gridType: 'apollo-axis',  lat:  50.12,  lng:  -5.68, gridReason: 'St Michael\'s Mount - the Apollo Axis enters Britain here, rising from the sea at the archangelic power site' },
+  { name: 'Mont Saint-Michel', country: 'France',   region: 'Apollo Axis',    gridType: 'apollo-axis',  lat:  48.64,  lng:  -1.51, gridReason: 'Apollo Axis sacred mount - the tide-island abbey marks the crossing into continental Europe on the Michael line' },
+  { name: 'Turin',          country: 'Italy',        region: 'Apollo Axis',    gridType: 'apollo-axis',  lat:  45.07,  lng:   7.69, gridReason: 'Sacra di San Michele - the Apollo Axis passes through this mountaintop abbey gateway to the Italian Alps' },
+  { name: 'Monte Sant\'Angelo', country: 'Italy',   region: 'Apollo Axis',    gridType: 'apollo-axis',  lat:  41.71,  lng:  15.96, gridReason: 'Apollo Axis - Gargano peninsula cave sanctuary of Archangel Michael, the line passes directly through the apparition site' },
+  { name: 'Delphi',         country: 'Greece',       region: 'Apollo Axis',    gridType: 'apollo-axis',  lat:  38.48,  lng:  22.50, gridReason: 'Temple of Apollo - the Apollo Axis reaches its namesake sanctuary, the navel of the ancient world and home of the Pythia oracle' },
+  { name: 'Athens',         country: 'Greece',       region: 'Apollo Axis',    gridType: 'apollo-axis',  lat:  37.98,  lng:  23.73, gridReason: 'Parthenon - the Apollo Axis passes through the Acropolis, the crown of Western civilisation built on a sacred rock' },
+  { name: 'Haifa',          country: 'Israel',       region: 'Apollo Axis',    gridType: 'apollo-axis',  lat:  32.79,  lng:  34.99, gridReason: 'Mount Carmel - the Apollo Axis ends here at the Mediterranean shore, where Elijah confronted the prophets of Baal' },
+
+  // DRAGON LINE CITIES
+  { name: 'Oaxaca',         country: 'Mexico',       region: 'Dragon Lines',   gridType: 'dragon-line',  lat:  17.07,  lng: -96.73, gridReason: 'El Tule Tree - Plumed Serpent evocational centre, the oldest living tree in the Americas anchors the Male Dragon Line in Mesoamerica' },
+  { name: 'Cusco',          country: 'Peru',         region: 'Dragon Lines',   gridType: 'dragon-line',  lat: -13.53,  lng: -71.97, gridReason: 'Plumed Serpent path - the Inca capital was built where the Male Dragon Line crosses the Andean spine, radiating golden energy to 41 sacred ceque lines' },
+  { name: 'Copacabana',     country: 'Bolivia',      region: 'Dragon Lines',   gridType: 'dragon-line',  lat: -16.17,  lng: -69.09, gridReason: 'Dragon Line crossover at Lake Titicaca - both Male and Female lines intersect here creating the most potent energetic womb site in the Americas' },
+  { name: 'Ubud',           country: 'Indonesia',    region: 'Dragon Lines',   gridType: 'dragon-line',  lat:  -8.51,  lng: 115.26, gridReason: 'Dragon Line crossover at Bali - the Male and Female lines meet on this island causing the extraordinary creativity and spiritual magnetism Bali is known for' },
+  { name: 'Kyoto',          country: 'Japan',        region: 'Dragon Lines',   gridType: 'dragon-line',  lat:  35.01,  lng: 135.77, gridReason: 'Near Mt Fuji dragon line path - Japan\'s ancient capital was placed by geomancers at the point where the Male Plumed Serpent line crests in East Asia' },
+  { name: 'Lhasa',          country: 'Tibet',        region: 'Dragon Lines',   gridType: 'dragon-line',  lat:  29.65,  lng:  91.10, gridReason: 'Rainbow Serpent path to Kailash - the Female Dragon Line runs through Tibet\'s holy city carrying the lunar feminine current toward the crown chakra at Mt Kailash' },
+  { name: 'Avebury',        country: 'England',      region: 'Dragon Lines',   gridType: 'dragon-line',  lat:  51.43,  lng:  -1.85, gridReason: 'Rainbow Serpent and St Michael Line convergence - the world\'s largest stone circle sits where the Female Dragon Line weaves through the Michael-Mary current' },
+  { name: 'Portland',       country: 'USA',          region: 'Dragon Lines',   gridType: 'dragon-line',  lat:  45.52,  lng:-122.68, gridReason: 'Cascadia volcanic dragon line - situated between Mt Rainier, Mt St Helens and Mt Hood, the Male Dragon Line flows through volcanic fire energy along the Pacific arc' },
+  { name: 'Quito',          country: 'Ecuador',      region: 'Dragon Lines',   gridType: 'dragon-line',  lat:  -0.18,  lng: -78.47, gridReason: 'Avenue of Volcanoes - Plumed Serpent path runs through this equatorial city ringed by the highest active volcanoes in the world' },
+
+  // SACRED SITE CITIES (Great Circle alignment)
+  { name: 'Luxor',          country: 'Egypt',        region: 'Sacred Sites',   gridType: 'sacred-site',  lat:  25.69,  lng:  32.64, gridReason: 'Valley of Kings - Graham Hancock\'s Great Circle alignment passes through this ancient capital of Upper Egypt, home of 63 pharaonic tombs' },
+  { name: 'Wadi Musa',      country: 'Jordan',       region: 'Sacred Sites',   gridType: 'sacred-site',  lat:  30.33,  lng:  35.44, gridReason: 'Petra - Great Circle alignment passes through this rose-red Nabataean city carved into cliffs, a sacred crossroads of three continents' },
+  { name: 'Shiraz',         country: 'Iran',         region: 'Sacred Sites',   gridType: 'sacred-site',  lat:  29.59,  lng:  52.58, gridReason: 'Near Persepolis - the Great Circle alignment passes through ancient Persia\'s ceremonial capital, built on a site of profound Earth energy' },
+  { name: 'Siem Reap',      country: 'Cambodia',     region: 'Sacred Sites',   gridType: 'sacred-site',  lat:  13.36,  lng: 103.86, gridReason: 'Angkor Wat - the Great Circle alignment passes through the largest religious monument ever built, a stone map of Mt Meru and the Hindu cosmos' },
+  { name: 'Hanga Roa',      country: 'Easter Island', region: 'Sacred Sites',  gridType: 'sacred-site',  lat: -27.15,  lng:-109.43, gridReason: 'Easter Island - the Great Circle alignment passes through the most isolated inhabited island, home of the Moai, facing inward to the sacred mountain' },
+  { name: 'Nazca',          country: 'Peru',         region: 'Sacred Sites',   gridType: 'sacred-site',  lat: -14.83,  lng: -74.94, gridReason: 'Nazca Lines - the Great Circle alignment passes through this desert plateau where enormous geoglyphs were etched as messages to sky and Earth forces' },
+
+  // GRID PATH CITIES (ley lines and connectors)
+  { name: 'Sedona',         country: 'USA',          region: 'Grid Paths',     gridType: 'grid-path',    lat:  34.87,  lng:-111.76, gridReason: 'Arizona vortex zone - four documented electromagnetic vortices sit within 10km, creating one of the most powerful healing fields in North America' },
+  { name: 'Santa Fe',       country: 'USA',          region: 'Grid Paths',     gridType: 'grid-path',    lat:  35.69,  lng:-105.94, gridReason: 'High desert energy corridor connecting Sedona vortex zone to the Chaco Canyon ceremonial network via the Sangre de Cristo Mountains' },
+  { name: 'New Orleans',    country: 'USA',          region: 'Grid Paths',     gridType: 'grid-path',    lat:  29.95,  lng: -90.07, gridReason: 'Mississippi ley line - where the continent\'s longest river meets the sea, a massive telluric current flows and spiritual traditions like Vodou have always known it' },
+  { name: 'Asheville',      country: 'USA',          region: 'Grid Paths',     gridType: 'grid-path',    lat:  35.60,  lng: -82.55, gridReason: 'Appalachian ley line junction - the ancient Blue Ridge Mountains concentrate underground quartz veins that act as piezoelectric amplifiers for Earth energy' },
+  { name: 'San Francisco',  country: 'USA',          region: 'Grid Paths',     gridType: 'grid-path',    lat:  37.77,  lng:-122.42, gridReason: 'Pacific Ring grid path - the city sits on converging fault lines creating a natural energy vortex at the Pacific Rim\'s eastern edge' },
+  { name: 'New York',       country: 'USA',          region: 'Grid Paths',     gridType: 'grid-path',    lat:  40.71,  lng: -74.01, gridReason: 'Atlantic grid corridor - built on Manhattan schist bedrock that channels telluric currents from the Appalachians into the Atlantic energy field' },
+  { name: 'Edinburgh',      country: 'Scotland',     region: 'Grid Paths',     gridType: 'grid-path',    lat:  55.95,  lng:  -3.19, gridReason: 'Arthur\'s Seat - the ancient volcanic plug at the city centre is a documented ley line junction, and the castle rock channels the Scottish highland current southward' },
+  { name: 'Paris',          country: 'France',       region: 'Grid Paths',     gridType: 'grid-path',    lat:  48.86,  lng:   2.35, gridReason: 'Rose Line (Paris Meridian) - the city was built on a major ley convergence, and the Paris Meridian predates Greenwich as the zero line of Western sacred geography' },
+  { name: 'Rome',           country: 'Italy',        region: 'Grid Paths',     gridType: 'grid-path',    lat:  41.90,  lng:  12.50, gridReason: 'Vatican ley line junction - Rome was founded on seven hills that mark ley intersections, and the Vatican was built on an ancient cybele temple at a primary node' },
+  { name: 'Barcelona',      country: 'Spain',        region: 'Grid Paths',     gridType: 'grid-path',    lat:  41.39,  lng:   2.17, gridReason: 'Mediterranean grid path - Sagrada Familia and Montjuic mark two nodes of a local grid that Gaudi consciously built into his architecture' },
+  { name: 'Istanbul',       country: 'Turkey',       region: 'Grid Paths',     gridType: 'grid-path',    lat:  41.01,  lng:  28.98, gridReason: 'Bosphorus continental energy bridge - where Europe and Asia meet, the strait carries both tectonic and energetic currents between two of Earth\'s great grid quadrants' },
+  { name: 'Tehran',         country: 'Iran',         region: 'Grid Paths',     gridType: 'grid-path',    lat:  35.69,  lng:  51.39, gridReason: 'Near Iran Flower of Life centre - Iran\'s capital sits on the edge of the Persepolis-Isfahan FOL field, one of three primary Flower of Life sites on Earth' },
+  { name: 'Isfahan',        country: 'Iran',         region: 'Grid Paths',     gridType: 'grid-path',    lat:  32.65,  lng:  51.68, gridReason: 'Ancient Persian energy centre at the heart of the Iran Flower of Life field, where six sacred geometries converge around the city\'s historic core' },
+  { name: 'Damascus',       country: 'Syria',        region: 'Grid Paths',     gridType: 'grid-path',    lat:  33.51,  lng:  36.29, gridReason: 'One of the oldest continuously inhabited cities on Earth, Damascus sits on an ancient grid anchor where Levantine and Mesopotamian energy currents cross' },
+  { name: 'Beirut',         country: 'Lebanon',      region: 'Grid Paths',     gridType: 'grid-path',    lat:  33.89,  lng:  35.50, gridReason: 'Phoenician coast grid path - ancient Byblos and Tyre mark nodes on either side, and Beirut sits at the energetic midpoint of the Eastern Mediterranean arc' },
+  { name: 'Dubai',          country: 'UAE',          region: 'Grid Paths',     gridType: 'grid-path',    lat:  25.20,  lng:  55.27, gridReason: 'Arabian grid path connecting the Persian Gulf energy field to the Indian Ocean current, positioned where ancient trade routes crossed desert ley lines' },
+  { name: 'Mumbai',         country: 'India',        region: 'Grid Paths',     gridType: 'grid-path',    lat:  19.08,  lng:  72.88, gridReason: 'Indian Ocean grid path - the Elephanta Caves offshore mark this as a sacred site used for millennia, and the peninsula concentrates Deccan Plateau energies' },
+  { name: 'Varanasi',       country: 'India',        region: 'Grid Paths',     gridType: 'grid-path',    lat:  25.32,  lng:  83.01, gridReason: 'Ganges sacred site - the most spiritually active city in India sits where the Ganges, Yamuna and the invisible Saraswati rivers create a trifold energy portal' },
+  { name: 'Kathmandu',      country: 'Nepal',        region: 'Grid Paths',     gridType: 'grid-path',    lat:  27.72,  lng:  85.32, gridReason: 'Himalayan energy corridor - the Kathmandu Valley was deliberately chosen by Licchavi kings who followed the energy lines of the Bagmati River to this sacred bowl' },
+  { name: 'Bangkok',        country: 'Thailand',     region: 'Grid Paths',     gridType: 'grid-path',    lat:  13.76,  lng: 100.50, gridReason: 'Southeast Asian grid path - built at the mouth of the Chao Phraya River, Bangkok channels Mekong basin energies to the Gulf of Thailand crossing' },
+  { name: 'Tokyo',          country: 'Japan',        region: 'Grid Paths',     gridType: 'grid-path',    lat:  35.68,  lng: 139.69, gridReason: 'Pacific Ring grid anchor - Edo was positioned by the Tokugawa shogunate\'s geomancers at a deliberate feng shui node, now confirmed as a UVG-adjacent convergence point' },
+  { name: 'Seoul',          country: 'South Korea',  region: 'Grid Paths',     gridType: 'grid-path',    lat:  37.57,  lng: 126.98, gridReason: 'East Asian grid path - the Joseon dynasty sited Seoul according to Korean geomancy (pungsu) where five mountain ridges create a protective energetic basin' },
+  { name: 'Taipei',         country: 'Taiwan',       region: 'Grid Paths',     gridType: 'grid-path',    lat:  25.03,  lng: 121.57, gridReason: 'Pacific grid path - Taiwan sits on the collision zone of two tectonic plates creating intense piezoelectric Earth energy along the entire island spine' },
+  { name: 'Singapore',      country: 'Singapore',    region: 'Grid Paths',     gridType: 'grid-path',    lat:   1.35,  lng: 103.82, gridReason: 'Equatorial energy crossing - at 1 degree north of the equator, Singapore sits where maximum rotational Earth energy meets the convergence of Indian and Pacific ocean currents' },
+  { name: 'Sydney',         country: 'Australia',    region: 'Grid Paths',     gridType: 'grid-path',    lat: -33.87,  lng: 151.21, gridReason: 'Pacific grid anchor - the harbour was a significant Aboriginal ceremonial site where the coast\'s electromagnetic field concentrates around the sandstone basin' },
+  { name: 'Melbourne',      country: 'Australia',    region: 'Grid Paths',     gridType: 'grid-path',    lat: -37.81,  lng: 144.96, gridReason: 'Southern Australian grid path connecting Adelaide UVG vertex to the Tasman Sea crossing, the city sits at the base of the Great Dividing Range current' },
+  { name: 'Byron Bay',      country: 'Australia',    region: 'Grid Paths',     gridType: 'grid-path',    lat: -28.64,  lng: 153.61, gridReason: 'Eastern Australian energy vortex - the most easterly point of mainland Australia acts as an antenna for Pacific energy and is a documented geomagnetic anomaly zone' },
+  { name: 'Auckland',       country: 'New Zealand',  region: 'Grid Paths',     gridType: 'grid-path',    lat: -36.85,  lng: 174.76, gridReason: 'Polynesian grid path - built on 53 volcanic cones within the city limits, Auckland is one of the most volcanically active urban centres on Earth\'s grid' },
+  { name: 'Cape Town',      country: 'South Africa', region: 'Grid Paths',     gridType: 'grid-path',    lat: -33.93,  lng:  18.42, gridReason: 'Southern African grid anchor - Table Mountain is a flat-topped sacred site with magnetic anomalies, and the Cape of Good Hope marks the ocean current junction' },
+  { name: 'Nairobi',        country: 'Kenya',        region: 'Grid Paths',     gridType: 'grid-path',    lat:  -1.29,  lng:  36.82, gridReason: 'East African ley line corridor - the Great Rift Valley is a 6000km tear in the Earth\'s crust and Nairobi sits at its midpoint, a profound geological and energetic fracture' },
+  { name: 'Accra',          country: 'Ghana',        region: 'Grid Paths',     gridType: 'grid-path',    lat:   5.56,  lng:  -0.19, gridReason: 'West African grid path - Accra sits nearly on the prime meridian at the Gulf of Guinea, where the Greenwich line meets the equatorial Atlantic energy current' },
+  { name: 'Addis Ababa',    country: 'Ethiopia',     region: 'Grid Paths',     gridType: 'grid-path',    lat:   9.02,  lng:  38.75, gridReason: 'Ethiopian Highlands energy centre - at 2355m altitude the city sits on the roof of Africa, where ancient sacred mountains and Ark of the Covenant traditions converge' },
+  { name: 'Marrakech',      country: 'Morocco',      region: 'Grid Paths',     gridType: 'grid-path',    lat:  31.63,  lng:  -8.00, gridReason: 'Atlas Mountains grid path - Marrakech sits at the foot of the High Atlas range which channels energy between the Saharan field and the Atlantic coast current' },
+  { name: 'Lisbon',         country: 'Portugal',     region: 'Grid Paths',     gridType: 'grid-path',    lat:  38.72,  lng:  -9.14, gridReason: 'Atlantic grid gateway - at the westernmost edge of continental Europe, Lisbon has functioned for millennia as the threshold point between Old World ley networks and the Atlantic' },
+  { name: 'Reykjavik',      country: 'Iceland',      region: 'Grid Paths',     gridType: 'grid-path',    lat:  64.15,  lng: -21.94, gridReason: 'North Atlantic grid path with volcanic energy - Iceland sits on the Mid-Atlantic Ridge where two tectonic plates pull apart, releasing constant geothermal and electromagnetic force' },
+  { name: 'Bogota',         country: 'Colombia',     region: 'Grid Paths',     gridType: 'grid-path',    lat:   4.71,  lng: -74.07, gridReason: 'Andean grid path - built on a high savanna plateau at 2640m, Bogota is positioned where the Eastern Cordillera concentrates Andean dragon line energy' },
+  { name: 'Buenos Aires',   country: 'Argentina',    region: 'Grid Paths',     gridType: 'grid-path',    lat: -34.60,  lng: -58.38, gridReason: 'South American grid anchor on the Rio de la Plata estuary where the Parana and Uruguay Rivers create a massive freshwater energy field entering the South Atlantic' },
+  { name: 'Rio de Janeiro', country: 'Brazil',       region: 'Grid Paths',     gridType: 'grid-path',    lat: -22.91,  lng: -43.17, gridReason: 'Near UVG Vertex 49 region - the dramatic granite peaks of Corcovado and Sugarloaf are natural energy concentrators, and the bay amplifies the surrounding grid field' },
+  { name: 'Santiago',       country: 'Chile',        region: 'Grid Paths',     gridType: 'grid-path',    lat: -33.45,  lng: -70.67, gridReason: 'Andean grid path - Santiago sits at the foot of the Andes at the convergence of the Maipo and Mapocho rivers, channelling Andean earth energy into the Pacific basin' }
+];
+
+// Cities layer is now built by rebuildCityMarkers() after Supabase data loads.
+// The initial draw happens inside loadPractitioners() -> rebuildCityMarkers().
+
+// =====================================================================
+// TIMEZONE CONVERTER
+// =====================================================================
+const TZ_ZONES = [
+  { label: 'Sydney (AEST)',       tz: 'Australia/Sydney' },
+  { label: 'Tokyo (JST)',         tz: 'Asia/Tokyo' },
+  { label: 'Mumbai (IST)',        tz: 'Asia/Kolkata' },
+  { label: 'Dubai (GST)',         tz: 'Asia/Dubai' },
+  { label: 'London (GMT)',        tz: 'Europe/London' },
+  { label: 'Paris (CET)',         tz: 'Europe/Paris' },
+  { label: 'New York (EST)',      tz: 'America/New_York' },
+  { label: 'Los Angeles (PST)',   tz: 'America/Los_Angeles' },
+  { label: 'UTC',                 tz: 'UTC' }
+];
+
+function buildTimezoneBlock(dateStr, utcTime) {
+  if (!utcTime) {
+    return `<div class="tz-no-time">No specific time set for this event.</div>`;
+  }
+
+  const [h, m] = utcTime.split(':').map(Number);
+  // Construct a UTC date for this event
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const eventUTC = new Date(Date.UTC(year, month - 1, day, h, m, 0));
+
+  const rows = TZ_ZONES.map(zone => {
+    try {
+      const fmt = new Intl.DateTimeFormat('en-AU', {
+        timeZone: zone.tz,
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+      const localTime = fmt.format(eventUTC);
+      return `<div class="tz-row">
+        <span class="tz-label">${zone.label}</span>
+        <span class="tz-time">${localTime}</span>
+      </div>`;
+    } catch(e) {
+      return '';
+    }
+  }).join('');
+
+  return `<div class="tz-popup-title">Local Times</div>${rows}`;
+}
+
+// =====================================================================
+// CELESTIAL TIMING PANEL
+// =====================================================================
+(function initCelestialTiming() {
+  const powerDates = [
+    { date: '2026-03-03', label: 'Mar 3, 2026',      event: 'Total Lunar Eclipse in Virgo',          intention: 'protection', utcTime: '11:33', notes: 'Blood Moon - deep release, precision work', highlight: true },
+    { date: '2026-03-18', label: 'Mar 18, 2026',     event: 'New Moon in Pisces',                    intention: 'peace',      utcTime: '01:23', notes: 'Spiritual reset, compassion seeding' },
+    { date: '2026-03-20', label: 'Mar 20, 2026',     event: 'Spring Equinox (Venus day)',             intention: 'peace',      utcTime: '14:46', notes: 'Portal opening, equal light/dark', highlight: true },
+    { date: '2026-04-02', label: 'Apr 2, 2026',      event: 'Full Moon in Libra',                    intention: 'peace',      utcTime: '02:12', notes: 'Balance, justice, harmony' },
+    { date: '2026-04-17', label: 'Apr 17, 2026',     event: 'New Moon in Aries',                     intention: 'all',        utcTime: '11:51', notes: 'Fresh starts, cardinal fire' },
+    { date: '2026-05-01', label: 'May 1, 2026',      event: 'Full Moon in Scorpio (Beltane)',         intention: 'binding',    utcTime: '17:23', notes: 'Deep transformation, sacred fire' },
+    { date: '2026-05-31', label: 'May 31, 2026',     event: 'Blue Moon in Sagittarius',              intention: 'peace',      utcTime: '08:45', notes: 'Rare double full moon - expansion' },
+    { date: '2026-06-09', label: 'Jun 9, 2026',      event: 'Venus-Jupiter conjunction 25 Cancer',   intention: 'peace',      utcTime: '12:00', notes: '#1 POWER DATE - hits USA natal Sun', highlight: true },
+    { date: '2026-06-21', label: 'Jun 21, 2026',     event: 'Summer Solstice',                       intention: 'protection', utcTime: '02:25', notes: 'Peak solar power, longest light' },
+    { date: '2026-06-30', label: 'Jun 30, 2026',     event: 'Full Moon in Capricorn',                intention: 'protection', utcTime: '00:57', notes: 'Structure, authority, Saturn energy' },
+    { date: '2026-07-14', label: 'Jul 14, 2026',     event: 'New Moon in Cancer',                    intention: 'peace',      utcTime: null,    notes: 'Nurturing, homeland protection' },
+    { date: '2026-07-29', label: 'Jul 29, 2026',     event: 'Full Moon in Aquarius',                 intention: 'peace',      utcTime: '14:36', notes: 'Collective awakening, humanitarian' },
+    { date: '2026-08-12', label: 'Aug 12, 2026',     event: 'Total Solar Eclipse in Leo',            intention: 'all',        utcTime: '17:46', notes: 'MAJOR - transformation, new chapter', highlight: true },
+    { date: '2026-08-28', label: 'Aug 28, 2026',     event: 'Partial Lunar Eclipse in Pisces',       intention: 'binding',    utcTime: '04:12', notes: 'Release, letting go', highlight: true },
+    { date: '2026-09-22', label: 'Sep 22, 2026',     event: 'Autumn Equinox',                        intention: 'protection', utcTime: '22:05', notes: 'Balance point, harvest' },
+    { date: '2026-09-26', label: 'Sep 26, 2026',     event: 'Full Moon in Aries',                    intention: 'protection', utcTime: '16:49', notes: 'Warrior energy, fierce protection' },
+    { date: '2026-10-18', label: 'Oct 18-20, 2026',  event: 'Dark Moon before Scorpio',              intention: 'binding',    utcTime: '22:00', notes: '#1 binding window', highlight: true },
+    { date: '2026-10-26', label: 'Oct 26, 2026',     event: 'Full Moon in Taurus',                   intention: 'binding',    utcTime: '04:12', notes: 'Earth magic, Iran/Israel axis (both Taurus ruled)' },
+    { date: '2026-12-21', label: 'Dec 21, 2026',     event: 'Winter Solstice',                       intention: 'protection', utcTime: '09:50', notes: 'Return of light, rebirth' }
+  ];
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let nextEvent = null;
+  for (const pd of powerDates) {
+    const d = new Date(pd.date);
+    d.setHours(0, 0, 0, 0);
+    if (d >= today) {
+      nextEvent = pd;
+      nextEvent._dateObj = d;
+      break;
+    }
+  }
+
+  if (nextEvent) {
+    const daysUntil = Math.round((nextEvent._dateObj - today) / (1000 * 60 * 60 * 24));
+    document.getElementById('nextEventName').textContent = nextEvent.event;
+    document.getElementById('nextEventDate').textContent = nextEvent.label + (nextEvent.utcTime ? ' - ' + nextEvent.utcTime + ' UTC' : '');
+    document.getElementById('nextEventCountdown').textContent =
+      daysUntil === 0 ? 'TODAY' : `${daysUntil} day${daysUntil === 1 ? '' : 's'} away`;
+
+    document.getElementById('statsNextPower').textContent = nextEvent.event.length > 22
+      ? nextEvent.event.substring(0, 22) + '...'
+      : nextEvent.event;
+    document.getElementById('statsDaysUntil').textContent =
+      daysUntil === 0 ? 'TODAY' : `${daysUntil} day${daysUntil === 1 ? '' : 's'}`;
+  }
+
+  // Store next event for share button
+  window._nextPowerEvent = nextEvent;
+
+  const list = document.getElementById('powerDatesList');
+  powerDates.forEach(pd => {
+    const d = new Date(pd.date);
+    d.setHours(0, 0, 0, 0);
+    const isPast = d < today;
+    const card = document.createElement('div');
+    card.className = `power-date-card ${pd.intention}${pd.highlight ? ' highlight' : ''}`;
+    if (isPast) card.style.opacity = '0.45';
+
+    const intentionLabel = pd.intention === 'all' ? 'All' :
+      pd.intention.charAt(0).toUpperCase() + pd.intention.slice(1);
+
+    const utcLabel = pd.utcTime ? ` &bull; ${pd.utcTime} UTC` : '';
+
+    const tzBlockId = `tz-${pd.date.replace(/-/g, '')}`;
+
+    card.innerHTML = `
+      <div class="power-date-top">
+        <span class="power-date-date">${pd.label}${utcLabel}</span>
+        <span class="power-date-badge ${pd.intention}">${intentionLabel}</span>
+      </div>
+      <div class="power-date-event">${pd.event}</div>
+      <div class="power-date-notes">${pd.notes}</div>
+      <div class="tz-popup" id="${tzBlockId}">
+        ${buildTimezoneBlock(pd.date, pd.utcTime)}
+      </div>
+    `;
+
+    // Click to toggle timezone popup
+    card.addEventListener('click', function() {
+      const tzEl = document.getElementById(tzBlockId);
+      if (!tzEl) return;
+      const isOpen = tzEl.classList.toggle('open');
+      // Close others
+      if (isOpen) {
+        document.querySelectorAll('.tz-popup.open').forEach(el => {
+          if (el.id !== tzBlockId) el.classList.remove('open');
+        });
+      }
+    });
+
+    list.appendChild(card);
+  });
+
+  const toggleBtn = document.getElementById('celestialToggleBtn');
+  const body = document.getElementById('celestialBody');
+
+  toggleBtn.addEventListener('click', function() {
+    const isOpen = body.classList.toggle('open');
+    toggleBtn.classList.toggle('open', isOpen);
+  });
+})();
+
+// =====================================================================
+// RECORD YOUR CAST PANEL
+// =====================================================================
+(function initCastPanel() {
+  const toggleBtn = document.getElementById('castToggleBtn');
+  const body = document.getElementById('castBody');
+
+  toggleBtn.addEventListener('click', function() {
+    const isOpen = body.classList.toggle('open');
+    toggleBtn.classList.toggle('open', isOpen);
+  });
+})();
+
+// Practitioner count panel is now updated from Supabase via updatePractitionerCountPanel()
+// Keeping this stub so claimNode/releaseNode calls don't break
+function updatePractitionerCount() {
+  // Supabase-driven - no-op here, updatePractitionerCountPanel() handles it
+}
+
+function getShareText(platform) {
+  const ev = window._nextPowerEvent;
+  const eventName = ev ? ev.event : 'The Sophia Grid';
+  const dateLabel = ev ? ev.label : new Date().toDateString();
+  let base = `I'm SPELLCASTING with Sophia 🌍✨ ${eventName} - ${dateLabel}. Peace, Protection & Global Prosperity. #SophiaGrid`;
+  return base;
+}
+
+function showFeedback(msg) {
+  const el = document.getElementById('copyFeedback');
+  if (!el) return;
+  el.textContent = msg;
+  setTimeout(() => { el.textContent = ''; }, 3000);
+}
+
+window.shareToTwitter = function() {
+  const text = encodeURIComponent(getShareText('twitter'));
+  window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+};
+
+window.copyCaption = function(platform) {
+  const text = getShareText(platform);
+  navigator.clipboard.writeText(text).then(() => {
+    showFeedback(`${platform.charAt(0).toUpperCase() + platform.slice(1)} caption copied!`);
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showFeedback(`${platform.charAt(0).toUpperCase() + platform.slice(1)} caption copied!`);
+  });
+};
+
+// =====================================================================
+// SUPABASE CLIENT
+// =====================================================================
+const supabaseClient = supabase.createClient(
+  'https://pqvwbanhhqjosiqguvvs.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxdndiYW5oaHFqb3NpcWd1dnZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzOTMxNTgsImV4cCI6MjA4NDk2OTE1OH0.zRnWgvB2UG1ZLs8nO-ByWFLIZLK3YZdmB3usQpn8wpU'
+);
+
+// =====================================================================
+// SUPABASE - PRACTITIONERS DATA
+// =====================================================================
+
+// Keyed by city name (lowercase), stores array of practitioners for that city
+let practitionersByCity = {};
+// All practitioners flat array
+let allPractitioners = [];
+// Map from city name -> Leaflet marker reference so we can update icons
+const cityMarkerRefs = {};
+
+const intentionDotColors = {
+  peace:      '#2ecc71',
+  protection: '#9b59b6',
+  binding:    '#e74c3c'
+};
+
+async function loadPractitioners() {
+  const { data, error } = await supabaseClient
+    .from('sophia_practitioners')
+    .select('id, city, country, tiktok_handle, display_name, intention, lat, lng, created_at')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.warn('Supabase load error:', error.message);
+    return;
+  }
+
+  allPractitioners = data || [];
+  practitionersByCity = {};
+  allPractitioners.forEach(p => {
+    const key = p.city.toLowerCase();
+    if (!practitionersByCity[key]) practitionersByCity[key] = [];
+    practitionersByCity[key].push(p);
+  });
+
+  updateWorldwideCounter();
+  updatePractitionerCountPanel();
+  rebuildCityMarkers();
+}
+
+function updateWorldwideCounter() {
+  const el = document.getElementById('worldwideCounter');
+  if (!el) return;
+  const count = allPractitioners.length;
+  if (count === 0) {
+    el.textContent = '';
+  } else {
+    el.textContent = count + ' practitioner' + (count === 1 ? '' : 's') + ' worldwide';
+  }
+}
+
+function updatePractitionerCountPanel() {
+  const el = document.getElementById('practitionerCount');
+  if (!el) return;
+  const count = allPractitioners.length;
+  el.textContent = count > 0 ? count : 1;
+}
+
+// =====================================================================
+// CITY MARKERS - rebuild with practitioner counts
+// =====================================================================
+function buildCityIconHtml(cityColor, count) {
+  const badge = count > 0
+    ? `<div class="city-count-badge">${count}</div>`
+    : '';
+  return `<div class="city-marker-wrap">
+    <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:8px solid ${cityColor};position:relative;cursor:pointer;filter:drop-shadow(0 0 4px ${cityColor});">
+      <div style="position:absolute;left:-5px;top:8px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid ${cityColor};"></div>
+    </div>
+    ${badge}
+  </div>`;
+}
+
+function buildPractitionerListHtml(cityKey) {
+  const list = practitionersByCity[cityKey] || [];
+  if (list.length === 0) return '';
+
+  const MAX_SHOWN = 5;
+  const shown = list.slice(0, MAX_SHOWN);
+  const remainder = list.length - shown.length;
+
+  const items = shown.map(p => {
+    const dotColor = intentionDotColors[p.intention] || '#d4af67';
+    const handle = p.tiktok_handle ? p.tiktok_handle.replace(/^@/, '') : '';
+    const displayLabel = p.display_name
+      ? `${p.display_name} (@${handle})`
+      : `@${handle}`;
+    return `<li class="practitioner-list-item">
+      <span class="practitioner-intent-dot" style="background:${dotColor}"></span>
+      <a href="https://www.tiktok.com/@${handle}" target="_blank" rel="noopener">${displayLabel}</a>
+    </li>`;
+  }).join('');
+
+  const extra = remainder > 0
+    ? `<div class="practitioner-list-more">+ ${remainder} more practitioner${remainder === 1 ? '' : 's'}</div>`
+    : '';
+
+  return `
+    <div class="practitioner-count-line">${list.length} practitioner${list.length === 1 ? '' : 's'} active</div>
+    <ul class="practitioner-list">${items}</ul>
+    ${extra}
+  `;
+}
+
+function buildJoinFormHtml(city, country, lat, lng) {
+  const safeCity    = city.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  const safeCountry = country.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  return `
+    <div class="join-divider"></div>
+    <div class="join-form-title">Join This Grid Point</div>
+    <div id="join-form-wrap-${safeCity}">
+      <div class="join-form-field">
+        <label class="join-form-label" for="jf-handle-${safeCity}">TikTok Handle *</label>
+        <input class="join-form-input" id="jf-handle-${safeCity}" type="text" placeholder="@yourhandle" autocomplete="off" />
+      </div>
+      <div class="join-form-field">
+        <label class="join-form-label" for="jf-name-${safeCity}">Display Name (optional)</label>
+        <input class="join-form-input" id="jf-name-${safeCity}" type="text" placeholder="Your name" autocomplete="off" />
+      </div>
+      <div class="join-form-field">
+        <label class="join-form-label">Intention *</label>
+        <div class="join-radio-group">
+          <label class="join-radio-label peace">
+            <input type="radio" name="jf-intent-${safeCity}" class="peace" value="peace" checked />
+            Peace
+          </label>
+          <label class="join-radio-label protection">
+            <input type="radio" name="jf-intent-${safeCity}" class="protection" value="protection" />
+            Protection
+          </label>
+          <label class="join-radio-label binding">
+            <input type="radio" name="jf-intent-${safeCity}" class="binding" value="binding" />
+            Binding
+          </label>
+        </div>
+      </div>
+      <div class="join-error-msg" id="jf-error-${safeCity}"></div>
+      <button class="join-submit-btn" onclick="handleJoinSubmit('${safeCity}','${safeCountry}',${lat},${lng})">
+        Join the Grid
+      </button>
+    </div>
+    <div class="join-success-msg" id="join-success-${safeCity}" style="display:none"></div>
+  `;
+}
+
+function buildCityPopupHtml(city, country, gridLabel, cityColor, gridReason) {
+  const cityKey = city.toLowerCase();
+  const list = practitionersByCity[cityKey] || [];
+  const countLine = buildPractitionerListHtml(cityKey);
+  const joinForm = buildJoinFormHtml(city, country, 0, 0); // lat/lng stored on city data
+
+  return `
+    <div class="popup-node-id" style="color:${cityColor}">${gridLabel}</div>
+    <div class="popup-title">${city}</div>
+    <div class="popup-sub">${country}</div>
+    ${countLine}
+    <div class="popup-status" style="margin-top:6px;font-size:0.65rem;line-height:1.5;color:rgba(240,240,240,0.75)">${gridReason}</div>
+    ${joinForm}
+  `;
+}
+
+window.handleJoinSubmit = async function(city, country, lat, lng) {
+  // Lookup real lat/lng from citiesData
+  const cityEntry = citiesData.find(c => c.name.toLowerCase() === city.toLowerCase() || c.name === city);
+  const realLat = cityEntry ? cityEntry.lat : lat;
+  const realLng = cityEntry ? cityEntry.lng : lng;
+
+  const safeCity = city;
+  const handleInput = document.getElementById(`jf-handle-${safeCity}`);
+  const nameInput   = document.getElementById(`jf-name-${safeCity}`);
+  const intentRadio = document.querySelector(`input[name="jf-intent-${safeCity}"]:checked`);
+  const errorEl     = document.getElementById(`jf-error-${safeCity}`);
+  const submitBtn   = document.querySelector(`#join-form-wrap-${safeCity} .join-submit-btn`);
+  const successEl   = document.getElementById(`join-success-${safeCity}`);
+  const formWrap    = document.getElementById(`join-form-wrap-${safeCity}`);
+
+  if (!handleInput || !intentRadio) return;
+
+  let handle = handleInput.value.trim();
+  const displayName = nameInput ? nameInput.value.trim() : '';
+  const intention = intentRadio.value;
+
+  if (!handle) {
+    if (errorEl) errorEl.textContent = 'TikTok handle is required.';
+    return;
+  }
+
+  // Normalise handle - strip leading @
+  handle = handle.replace(/^@+/, '');
+
+  if (!handle) {
+    if (errorEl) errorEl.textContent = 'Please enter a valid TikTok handle.';
+    return;
+  }
+
+  if (errorEl) errorEl.textContent = '';
+  if (submitBtn) submitBtn.disabled = true;
+
+  const { error } = await supabaseClient
+    .from('sophia_practitioners')
+    .insert({
+      city: cityEntry ? cityEntry.name : city,
+      country,
+      tiktok_handle: handle,
+      display_name: displayName || null,
+      intention,
+      lat: realLat,
+      lng: realLng
+    });
+
+  if (error) {
+    if (errorEl) errorEl.textContent = 'Something went wrong. Please try again.';
+    if (submitBtn) submitBtn.disabled = false;
+    console.warn('Insert error:', error.message);
+    return;
+  }
+
+  // Success
+  if (formWrap) formWrap.style.display = 'none';
+  if (successEl) {
+    successEl.style.display = 'block';
+    successEl.textContent = 'You\'re in the grid! Welcome, @' + handle + '.';
+  }
+
+  // Refresh data
+  await loadPractitioners();
+};
+
+// =====================================================================
+// REBUILD CITIES LAYER with updated practitioner counts
+// =====================================================================
+const gridTypeLabelsMap = {
+  'uvg-vertex':   'UVG Vertex',
+  'earth-chakra': 'Earth Chakra',
+  'apollo-axis':  'Apollo / St Michael Axis',
+  'ley-line':     'Ley Line',
+  'dragon-line':  'Dragon Line',
+  'sacred-site':  'Sacred Site',
+  'grid-path':    'Grid Path'
+};
+
+function rebuildCityMarkers() {
+  // Clear existing city layer
+  layerGroups.cities.clearLayers();
+
+  citiesData.forEach(city => {
+    const cityColor = gridTypeColorMap[city.gridType] || '#a08840';
+    const gridLabel = gridTypeLabelsMap[city.gridType] || city.gridType;
+    const cityKey   = city.name.toLowerCase();
+    const count     = (practitionersByCity[cityKey] || []).length;
+
+    const icon = L.divIcon({
+      className: '',
+      html: buildCityIconHtml(cityColor, count),
+      iconSize: [10, 16],
+      iconAnchor: [5, 8]
+    });
+
+    const popupHtml = buildCityPopupHtml(city.name, city.country, gridLabel, cityColor, city.gridReason);
+
+    const marker = L.marker([city.lat, city.lng], { icon, zIndexOffset: 200 })
+      .bindPopup(popupHtml, { maxWidth: 280, minWidth: 240 });
+
+    // Refresh popup content each time it opens so the list is current
+    marker.on('popupopen', function() {
+      const updated = buildCityPopupHtml(city.name, city.country, gridLabel, cityColor, city.gridReason);
+      marker.setPopupContent(updated);
+    });
+
+    marker.addTo(layerGroups.cities);
+    cityMarkerRefs[cityKey] = { marker, city, gridLabel, cityColor };
+  });
+
+  // Re-check visibility based on checkbox state
+  const cb = document.getElementById('toggle-cities');
+  if (cb && !cb.checked) {
+    map.removeLayer(layerGroups.cities);
+  }
+}
+
+// Initial load
+loadPractitioners();
+
+// =====================================================================
+// WORLD EVENTS WATCH PANEL
+// =====================================================================
+(function initEventsPanel() {
+  const toggleBtn = document.getElementById('eventsToggleBtn');
+  const body = document.getElementById('eventsBody');
+
+  toggleBtn.addEventListener('click', function() {
+    const isOpen = body.classList.toggle('open');
+    toggleBtn.classList.toggle('open', isOpen);
+  });
+})();
+
+// =====================================================================
+// STATS PANEL - mirror moon phase
+// =====================================================================
+(function mirrorMoonPhase() {
+  const emoji = document.getElementById('lunarEmoji');
+  const name = document.getElementById('lunarName');
+  const statsEl = document.getElementById('statsMoonPhase');
+  if (emoji && name && statsEl) {
+    statsEl.textContent = emoji.textContent + ' ' + name.textContent;
+  }
+})();
+
+</script>
+</body>
+</html>
