@@ -1505,6 +1505,15 @@
       margin-top: 3px;
     }
 
+    /* ===================== MOBILE NAV BAR (hidden on desktop) ===================== */
+    .mobile-nav {
+      display: none;
+    }
+
+    .mobile-backdrop {
+      display: none;
+    }
+
     /* ===================== MOBILE ===================== */
     /* ===================== MOBILE - TABLET ===================== */
     @media (max-width: 700px) {
@@ -1700,19 +1709,28 @@
 
     /* ===================== MOBILE - PHONE ===================== */
     @media (max-width: 480px) {
+      html, body {
+        overflow: hidden;
+      }
+
       .app {
         height: 100vh;
         min-height: 100vh;
+        overflow: hidden;
       }
 
+      /* Map takes full available space between header and nav bar */
       .map-wrapper {
-        height: calc(100vh - 60px);
+        height: calc(100vh - 52px - 56px);
         flex: none;
+        overflow: hidden;
       }
 
       .header {
         padding: 8px 12px;
         min-height: 52px;
+        height: 52px;
+        flex-shrink: 0;
       }
 
       .header-title {
@@ -1739,114 +1757,287 @@
         font-size: 0.48rem;
       }
 
-      /* Hide panels that cover the map */
-      .cast-panel {
-        display: none;
+      /* Hide ALL floating panels - replaced by bottom nav + sheets */
+      .layer-panel,
+      .intention-panel,
+      .celestial-panel,
+      .cast-panel,
+      .events-panel-wrap,
+      .info-panel-wrapper {
+        display: none !important;
       }
 
-      .events-panel-wrap {
-        display: none;
-      }
-
-      /* Grid Status - tiny pill, bottom left */
-      .intention-panel {
-        bottom: 8px;
-        left: 8px;
-        padding: 6px 10px;
-        min-width: auto;
-        max-width: 130px;
-        font-size: 0.55rem;
-      }
-
-      .intention-panel .panel-title {
-        font-size: 0.6rem;
-        margin-bottom: 4px;
-      }
-
-      .intention-row {
-        margin-bottom: 2px;
-      }
-
-      .intention-label {
-        font-size: 0.52rem;
-      }
-
-      .intention-count {
-        font-size: 0.58rem;
-      }
-
-      .intention-divider {
-        margin: 3px 0;
-      }
-
-      /* Hide stats extras, claimed bar, and extra dividers on phone */
-      .stats-extra-row,
-      .claimed-bar-wrap {
-        display: none;
-      }
-
-      /* Only show first divider (after Total), hide the rest */
-      .intention-divider:nth-of-type(2),
-      .intention-divider:nth-of-type(3) {
-        display: none;
-      }
-
-      /* Hide Claimed row on phone */
-      .intention-row:has(#countClaimed) {
-        display: none;
-      }
-
-      /* Layer panel - compact */
-      .layer-panel {
-        top: 8px;
-        right: 8px;
-        padding: 6px 8px;
-        min-width: auto;
-        max-width: 130px;
-      }
-
-      .layer-panel .panel-title {
-        font-size: 0.55rem;
-        margin-bottom: 6px;
-      }
-
-      .layer-item {
-        margin-bottom: 4px;
-        gap: 5px;
-      }
-
-      .layer-label {
-        font-size: 0.5rem;
-      }
-
-      .layer-dot {
-        width: 6px;
-        height: 6px;
-      }
-
-      .layer-item input[type="checkbox"] {
-        width: 12px;
-        height: 12px;
-      }
-
-      /* Celestial panel - full width bottom sheet */
-      .celestial-panel {
-        top: auto;
+      /* Mobile bottom nav bar */
+      .mobile-nav {
+        display: flex;
+        position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
-        width: 100%;
-        border-radius: 12px 12px 0 0;
-        max-height: 60vh;
+        height: 56px;
+        z-index: 1100;
+        background: var(--panel-bg);
+        border-top: 1px solid var(--border);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        align-items: stretch;
       }
 
-      .celestial-toggle-btn {
-        border-radius: 12px 12px 0 0;
-        padding: 10px 14px;
+      .mobile-nav-btn {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 4px 2px;
+        position: relative;
+        transition: background 0.15s ease;
+        -webkit-tap-highlight-color: transparent;
       }
 
-      .celestial-body.open {
-        max-height: 50vh;
+      .mobile-nav-btn::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 20%;
+        right: 20%;
+        height: 2px;
+        background: var(--gold);
+        opacity: 0;
+        border-radius: 2px 2px 0 0;
+        transition: opacity 0.15s ease;
+      }
+
+      .mobile-nav-btn.active::after {
+        opacity: 1;
+      }
+
+      .mobile-nav-btn.active .mobile-nav-label {
+        color: var(--gold);
+      }
+
+      .mobile-nav-icon {
+        font-size: 1.1rem;
+        line-height: 1;
+      }
+
+      .mobile-nav-label {
+        font-size: 0.5rem;
+        color: var(--muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 500;
+        line-height: 1;
+      }
+
+      /* Mobile backdrop */
+      .mobile-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+
+      .mobile-backdrop.active {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      /* Mobile bottom sheets - panels repurposed */
+      /* When a panel has mobile-sheet-open class it slides up as a bottom sheet */
+      .mobile-sheet-open {
+        display: flex !important;
+        flex-direction: column;
+        position: fixed !important;
+        bottom: 56px !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        max-height: 70vh !important;
+        z-index: 1050 !important;
+        background: var(--panel-bg) !important;
+        border: none !important;
+        border-top: 1px solid var(--border) !important;
+        border-radius: 14px 14px 0 0 !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.7) !important;
+        transform: translateY(0) !important;
+        overflow: hidden;
+      }
+
+      /* Sheet header - drag handle + close button */
+      .mobile-sheet-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 16px 6px;
+        position: relative;
+        flex-shrink: 0;
+      }
+
+      .mobile-sheet-handle {
+        width: 36px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 2px;
+      }
+
+      .mobile-sheet-close {
+        position: absolute;
+        right: 14px;
+        top: 8px;
+        background: transparent;
+        border: none;
+        color: var(--muted);
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 4px 8px;
+        line-height: 1;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .mobile-sheet-close:hover {
+        color: var(--white);
+      }
+
+      /* Sheet content scrollable area */
+      .mobile-sheet-scroll {
+        overflow-y: auto;
+        flex: 1;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* ---- Layer panel as sheet ---- */
+      .layer-panel.mobile-sheet-open {
+        padding: 0 !important;
+      }
+
+      .layer-panel.mobile-sheet-open .panel-title {
+        font-size: 0.62rem;
+        margin-bottom: 10px;
+      }
+
+      /* ---- Intention panel as sheet ---- */
+      .intention-panel.mobile-sheet-open {
+        padding: 0 !important;
+        min-width: 0 !important;
+      }
+
+      /* Restore hidden items inside sheet context */
+      .intention-panel.mobile-sheet-open .stats-extra-row,
+      .intention-panel.mobile-sheet-open .claimed-bar-wrap,
+      .intention-panel.mobile-sheet-open .intention-divider,
+      .intention-panel.mobile-sheet-open .intention-row {
+        display: flex !important;
+      }
+
+      .intention-panel.mobile-sheet-open .claimed-bar-wrap {
+        display: block !important;
+      }
+
+      .intention-panel.mobile-sheet-open .stats-extra-row {
+        display: block !important;
+      }
+
+      /* ---- Cast panel as sheet ---- */
+      .cast-panel.mobile-sheet-open {
+        padding: 0 !important;
+        width: 100% !important;
+      }
+
+      /* Force cast body open inside sheet */
+      .cast-panel.mobile-sheet-open .cast-body {
+        max-height: none !important;
+        overflow: visible !important;
+      }
+
+      /* Hide cast toggle btn inside sheet - sheet header handles it */
+      .cast-panel.mobile-sheet-open .cast-toggle-btn {
+        display: none !important;
+      }
+
+      /* ---- Celestial panel as sheet ---- */
+      .celestial-panel.mobile-sheet-open {
+        width: 100% !important;
+        max-height: 70vh !important;
+      }
+
+      /* Force celestial body open inside sheet */
+      .celestial-panel.mobile-sheet-open .celestial-body {
+        max-height: none !important;
+        overflow: visible !important;
+      }
+
+      /* Hide celestial toggle btn inside sheet */
+      .celestial-panel.mobile-sheet-open .celestial-toggle-btn {
+        display: none !important;
+      }
+
+      /* ---- Events panel as sheet ---- */
+      .events-panel-wrap.mobile-sheet-open {
+        padding: 0 !important;
+        width: 100% !important;
+        flex-direction: column !important;
+      }
+
+      /* Force events body open inside sheet */
+      .events-panel-wrap.mobile-sheet-open .events-body {
+        max-height: none !important;
+        overflow: visible !important;
+      }
+
+      /* Hide events toggle btn inside sheet */
+      .events-panel-wrap.mobile-sheet-open .events-toggle-btn {
+        display: none !important;
+      }
+
+      /* ---- Info panel wrapper as sheet ---- */
+      .info-panel-wrapper.mobile-sheet-open {
+        padding: 0 !important;
+        width: 100% !important;
+      }
+
+      /* Force info panel open inside sheet */
+      .info-panel-wrapper.mobile-sheet-open .info-panel {
+        max-height: none !important;
+        display: block !important;
+      }
+
+      /* Hide info toggle bar inside sheet */
+      .info-panel-wrapper.mobile-sheet-open .info-toggle-bar {
+        display: none !important;
+      }
+
+      /* Info panel single column in sheet */
+      .info-panel-wrapper.mobile-sheet-open .info-panel-content {
+        grid-template-columns: 1fr;
+        max-height: none;
+      }
+
+      .info-panel-wrapper.mobile-sheet-open .info-section {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 0 0 10px 0;
+        margin-bottom: 10px;
+      }
+
+      .info-panel-wrapper.mobile-sheet-open .info-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
       }
 
       /* Popups - optimised for touch */
@@ -1888,28 +2079,6 @@
         font-size: 0.8rem;
         border-radius: 8px;
         width: 100%;
-      }
-
-      /* Info panel - single column */
-      .info-panel-content {
-        grid-template-columns: 1fr;
-      }
-
-      .info-section {
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-        padding: 0 0 10px 0;
-        margin-bottom: 10px;
-      }
-
-      .info-section:last-child {
-        border-bottom: none;
-        margin-bottom: 0;
-        padding-bottom: 0;
-      }
-
-      .info-panel.open {
-        max-height: 250px;
       }
     }
   </style>
@@ -2235,6 +2404,37 @@
     </div>
 
   </div><!-- /map-wrapper -->
+
+  <!-- MOBILE BOTTOM NAV (only visible at 480px and below via CSS) -->
+  <nav class="mobile-nav" id="mobileNav" aria-label="Panel navigation">
+    <button class="mobile-nav-btn" data-panel="layers" aria-label="Open Grid Layers panel">
+      <span class="mobile-nav-icon" aria-hidden="true">&#128506;</span>
+      <span class="mobile-nav-label">Layers</span>
+    </button>
+    <button class="mobile-nav-btn" data-panel="status" aria-label="Open Grid Status panel">
+      <span class="mobile-nav-icon" aria-hidden="true">&#128202;</span>
+      <span class="mobile-nav-label">Status</span>
+    </button>
+    <button class="mobile-nav-btn" data-panel="timing" aria-label="Open Celestial Timing panel">
+      <span class="mobile-nav-icon" aria-hidden="true">&#9790;</span>
+      <span class="mobile-nav-label">Timing</span>
+    </button>
+    <button class="mobile-nav-btn" data-panel="cast" aria-label="Open Record Your Cast panel">
+      <span class="mobile-nav-icon" aria-hidden="true">&#10024;</span>
+      <span class="mobile-nav-label">Cast</span>
+    </button>
+    <button class="mobile-nav-btn" data-panel="events" aria-label="Open World Events panel">
+      <span class="mobile-nav-icon" aria-hidden="true">&#127758;</span>
+      <span class="mobile-nav-label">Events</span>
+    </button>
+    <button class="mobile-nav-btn" data-panel="info" aria-label="Open About the Grid panel">
+      <span class="mobile-nav-icon" aria-hidden="true">&#8505;</span>
+      <span class="mobile-nav-label">Info</span>
+    </button>
+  </nav>
+
+  <!-- MOBILE BACKDROP -->
+  <div class="mobile-backdrop" id="mobileBackdrop" aria-hidden="true"></div>
 
 </div><!-- /app -->
 
@@ -3434,6 +3634,127 @@ loadPractitioners();
   if (emoji && name && statsEl) {
     statsEl.textContent = emoji.textContent + ' ' + name.textContent;
   }
+})();
+
+// =====================================================================
+// MOBILE BOTTOM NAV + BOTTOM SHEETS
+// =====================================================================
+(function initMobileNav() {
+  // Only activate on mobile widths
+  if (window.innerWidth > 480) return;
+
+  const backdrop    = document.getElementById('mobileBackdrop');
+  const navBtns     = document.querySelectorAll('.mobile-nav-btn');
+
+  // Map nav data-panel values to the actual panel elements
+  const panels = {
+    layers:  document.querySelector('.layer-panel'),
+    status:  document.getElementById('intentionPanel'),
+    timing:  document.getElementById('celestialPanel'),
+    cast:    document.getElementById('castPanel'),
+    events:  document.getElementById('eventsPanel'),
+    info:    document.querySelector('.info-panel-wrapper')
+  };
+
+  // Sheet title labels for each panel
+  const sheetTitles = {
+    layers: 'Grid Layers',
+    status: 'Grid Status',
+    timing: 'Celestial Timing',
+    cast:   'Record Your Cast',
+    events: 'World Events Watch',
+    info:   'About the Grid'
+  };
+
+  let activePanel = null;
+  let activeBtn   = null;
+
+  // Inject a sheet header (drag handle + close button) into each panel
+  // Only do this once per panel
+  function injectSheetHeader(panelEl, panelKey) {
+    if (panelEl.dataset.sheetHeaderInjected) return;
+    panelEl.dataset.sheetHeaderInjected = 'true';
+
+    const header = document.createElement('div');
+    header.className = 'mobile-sheet-header';
+    header.innerHTML = `
+      <div class="mobile-sheet-handle" aria-hidden="true"></div>
+      <button class="mobile-sheet-close" aria-label="Close panel">&#10005;</button>
+    `;
+
+    // Wrap existing children in a scrollable div
+    const scroll = document.createElement('div');
+    scroll.className = 'mobile-sheet-scroll';
+
+    // Move all current children into scroll wrapper
+    while (panelEl.firstChild) {
+      scroll.appendChild(panelEl.firstChild);
+    }
+
+    panelEl.appendChild(header);
+    panelEl.appendChild(scroll);
+
+    // Close button handler
+    header.querySelector('.mobile-sheet-close').addEventListener('click', closeSheet);
+  }
+
+  function openSheet(panelKey, btn) {
+    // Close any currently open sheet first
+    if (activePanel) closeSheet();
+
+    const panelEl = panels[panelKey];
+    if (!panelEl) return;
+
+    injectSheetHeader(panelEl, panelKey);
+
+    panelEl.classList.add('mobile-sheet-open');
+    backdrop.classList.add('active');
+
+    btn.classList.add('active');
+
+    activePanel = panelEl;
+    activeBtn   = btn;
+
+    // Invalidate map size after sheet opens (in case it resized)
+    if (window.map) {
+      setTimeout(function() { map.invalidateSize(); }, 350);
+    }
+  }
+
+  function closeSheet() {
+    if (activePanel) {
+      activePanel.classList.remove('mobile-sheet-open');
+      activePanel = null;
+    }
+    if (activeBtn) {
+      activeBtn.classList.remove('active');
+      activeBtn = null;
+    }
+    backdrop.classList.remove('active');
+  }
+
+  // Nav button click handlers
+  navBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const panelKey = btn.dataset.panel;
+      if (activeBtn === btn) {
+        // Tapping same button closes the sheet
+        closeSheet();
+      } else {
+        openSheet(panelKey, btn);
+      }
+    });
+  });
+
+  // Backdrop click closes sheet
+  backdrop.addEventListener('click', closeSheet);
+
+  // Handle resize - if user rotates device to desktop width, close everything
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 480) {
+      closeSheet();
+    }
+  });
 })();
 
 </script>
