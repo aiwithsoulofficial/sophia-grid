@@ -1700,24 +1700,46 @@
 
     /* ===================== MOBILE - PHONE ===================== */
     @media (max-width: 480px) {
+      .app {
+        height: 100vh;
+        min-height: 100vh;
+      }
+
       .map-wrapper {
-        height: 55vh;
+        height: calc(100vh - 60px);
+        flex: none;
       }
 
       .header {
         padding: 8px 12px;
+        min-height: 52px;
       }
 
       .header-title {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
       }
 
-      .header-subtitle,
-      .header-tagline {
+      .header-subtitle {
         font-size: 0.5rem;
       }
 
-      /* Hide non-essential panels to keep map clean */
+      .header-tagline {
+        display: none;
+      }
+
+      .worldwide-counter {
+        display: none;
+      }
+
+      .lunar-emoji {
+        font-size: 1.1rem;
+      }
+
+      .lunar-name {
+        font-size: 0.48rem;
+      }
+
+      /* Hide panels that cover the map */
       .cast-panel {
         display: none;
       }
@@ -1726,21 +1748,97 @@
         display: none;
       }
 
+      /* Grid Status - tiny pill, bottom left */
       .intention-panel {
-        padding: 8px 10px;
-        min-width: 120px;
+        bottom: 8px;
+        left: 8px;
+        padding: 6px 10px;
+        min-width: auto;
+        max-width: 130px;
+        font-size: 0.55rem;
       }
 
-      /* Layer panel - minimal */
+      .intention-panel .panel-title {
+        font-size: 0.6rem;
+        margin-bottom: 4px;
+      }
+
+      .intention-row {
+        margin-bottom: 2px;
+      }
+
+      .intention-label {
+        font-size: 0.52rem;
+      }
+
+      .intention-count {
+        font-size: 0.58rem;
+      }
+
+      .intention-divider {
+        margin: 3px 0;
+      }
+
+      /* Hide the stats rows (moon phase, next date, days) on phone */
+      .intention-panel .intention-divider ~ .intention-divider,
+      .intention-panel .intention-divider ~ .intention-divider ~ .intention-row {
+        display: none;
+      }
+
+      /* Layer panel - collapsible mini */
       .layer-panel {
+        top: 8px;
+        right: 8px;
         padding: 6px 8px;
-        min-width: 120px;
+        min-width: auto;
+        max-width: 140px;
       }
 
-      /* Popup form - full width feel */
+      .layer-panel .panel-title {
+        font-size: 0.6rem;
+      }
+
+      .layer-label {
+        font-size: 0.55rem;
+      }
+
+      .layer-dot {
+        width: 6px;
+        height: 6px;
+      }
+
+      /* Celestial panel - full width bottom sheet */
+      .celestial-panel {
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        border-radius: 12px 12px 0 0;
+        max-height: 60vh;
+      }
+
+      .celestial-toggle-btn {
+        border-radius: 12px 12px 0 0;
+        padding: 10px 14px;
+      }
+
+      .celestial-body.open {
+        max-height: 50vh;
+      }
+
+      /* Popups - optimised for touch */
+      .leaflet-popup-content-wrapper {
+        max-width: 92vw !important;
+      }
+
       .leaflet-popup-content {
         margin: 8px 10px !important;
-        max-width: 80vw !important;
+        max-width: 82vw !important;
+      }
+
+      .popup-title {
+        font-size: 0.8rem;
       }
 
       .join-form-input {
@@ -1750,20 +1848,24 @@
       }
 
       .join-radio-group {
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
         gap: 6px;
       }
 
       .join-radio-label {
-        padding: 10px 12px;
-        font-size: 0.7rem;
+        padding: 10px 10px;
+        font-size: 0.65rem;
+        flex: 1;
         text-align: center;
+        min-width: 70px;
       }
 
       .join-submit-btn {
         padding: 14px 16px;
         font-size: 0.8rem;
         border-radius: 8px;
+        width: 100%;
       }
 
       /* Info panel - single column */
@@ -1782,6 +1884,10 @@
         border-bottom: none;
         margin-bottom: 0;
         padding-bottom: 0;
+      }
+
+      .info-panel.open {
+        max-height: 250px;
       }
     }
   </style>
