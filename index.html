@@ -26,25 +26,25 @@
     }
 
     :root {
-      --bg: #0a0a1a;
-      --surface: #151528;
-      --surface2: #1c1c35;
-      --gold: #d4af67;
-      --gold-dim: rgba(212, 175, 103, 0.15);
-      --gold-mid: rgba(212, 175, 103, 0.4);
-      --violet: #9b59b6;
-      --violet-glow: rgba(155, 89, 182, 0.35);
-      --emerald: #2ecc71;
-      --emerald-glow: rgba(46, 204, 113, 0.35);
-      --rose: #e74c3c;
-      --rose-glow: rgba(231, 76, 60, 0.35);
-      --cyan: #00bcd4;
-      --cyan-dim: rgba(0, 188, 212, 0.5);
-      --white: #f0f0f0;
-      --muted: rgba(240, 240, 240, 0.5);
-      --border: rgba(212, 175, 103, 0.2);
+      --bg: #1E3329;
+      --surface: #2D4A3E;
+      --surface2: #345647;
+      --gold: #C9A96E;
+      --gold-dim: rgba(201, 169, 110, 0.15);
+      --gold-mid: rgba(201, 169, 110, 0.4);
+      --violet: #C4663A;
+      --violet-glow: rgba(196, 102, 58, 0.35);
+      --emerald: #8FA89A;
+      --emerald-glow: rgba(143, 168, 154, 0.35);
+      --rose: #A8522B;
+      --rose-glow: rgba(168, 82, 43, 0.35);
+      --cyan: #C9A96E;
+      --cyan-dim: rgba(201, 169, 110, 0.5);
+      --white: #F5EDE0;
+      --muted: rgba(245, 237, 224, 0.5);
+      --border: rgba(201, 169, 110, 0.2);
       --radius: 10px;
-      --panel-bg: rgba(15, 15, 30, 0.88);
+      --panel-bg: rgba(30, 51, 41, 0.88);
     }
 
     html, body {
@@ -65,7 +65,7 @@
     /* ===================== HEADER ===================== */
     .header {
       flex-shrink: 0;
-      background: linear-gradient(180deg, #080815 0%, var(--surface) 100%);
+      background: linear-gradient(180deg, #142219 0%, var(--surface) 100%);
       border-bottom: 1px solid var(--border);
       padding: 12px 20px;
       display: flex;
@@ -99,7 +99,7 @@
 
     .header-tagline {
       font-size: 0.62rem;
-      color: rgba(155, 89, 182, 0.7);
+      color: rgba(196, 102, 58, 0.7);
       letter-spacing: 0.06em;
       margin-top: 3px;
       font-style: italic;
@@ -139,7 +139,7 @@
 
     /* Override Leaflet attribution for dark mode */
     .leaflet-control-attribution {
-      background: rgba(10, 10, 26, 0.7) !important;
+      background: rgba(20, 34, 25, 0.7) !important;
       color: var(--muted) !important;
       font-size: 0.6rem !important;
     }
@@ -225,7 +225,7 @@
       left: 4px;
       width: 4px;
       height: 7px;
-      border: 2px solid #0a0a1a;
+      border: 2px solid #1E3329;
       border-top: none;
       border-left: none;
       transform: rotate(45deg);
@@ -464,21 +464,21 @@
     }
 
     .popup-intention.peace {
-      background: rgba(46,204,113,0.15);
+      background: rgba(143,168,154,0.15);
       color: var(--emerald);
-      border: 1px solid rgba(46,204,113,0.3);
+      border: 1px solid rgba(143,168,154,0.3);
     }
 
     .popup-intention.protection {
-      background: rgba(155,89,182,0.15);
+      background: rgba(196,102,58,0.15);
       color: var(--violet);
-      border: 1px solid rgba(155,89,182,0.3);
+      border: 1px solid rgba(196,102,58,0.3);
     }
 
     .popup-intention.binding {
-      background: rgba(231,76,60,0.15);
+      background: rgba(168,82,43,0.15);
       color: var(--rose);
-      border: 1px solid rgba(231,76,60,0.3);
+      border: 1px solid rgba(168,82,43,0.3);
     }
 
     .popup-status {
@@ -511,7 +511,7 @@
 
     .popup-btn:hover {
       background: var(--gold);
-      color: var(--bg);
+      color: #1E3329;
     }
 
     .popup-btn.claimed {
@@ -521,7 +521,7 @@
 
     .popup-btn.claimed:hover {
       background: var(--emerald);
-      color: var(--bg);
+      color: #1E3329;
     }
 
     .popup-btn.release {
@@ -582,7 +582,7 @@
 
     .node-marker.gold-site {
       background: var(--gold);
-      box-shadow: 0 0 8px rgba(212,175,103,0.7);
+      box-shadow: 0 0 8px rgba(201,169,110,0.7);
       animation: pulse-gold 3.5s ease-in-out infinite;
     }
 
@@ -698,8 +698,8 @@
     }
 
     .celestial-next-window {
-      background: linear-gradient(135deg, rgba(212,175,103,0.12), rgba(212,175,103,0.05));
-      border: 1px solid rgba(212,175,103,0.35);
+      background: linear-gradient(135deg, rgba(201,169,110,0.12), rgba(201,169,110,0.05));
+      border: 1px solid rgba(201,169,110,0.35);
       border-radius: 8px;
       padding: 10px 12px;
       margin-bottom: 14px;
@@ -776,7 +776,7 @@
     }
 
     .power-date-card.highlight {
-      background: rgba(212,175,103,0.08);
+      background: rgba(201,169,110,0.08);
       border-left-width: 4px;
     }
 
@@ -802,10 +802,10 @@
       font-weight: 600;
     }
 
-    .power-date-badge.peace { background: rgba(46,204,113,0.15); color: var(--emerald); }
-    .power-date-badge.protection { background: rgba(155,89,182,0.15); color: var(--violet); }
-    .power-date-badge.binding { background: rgba(231,76,60,0.15); color: var(--rose); }
-    .power-date-badge.all { background: rgba(212,175,103,0.15); color: var(--gold); }
+    .power-date-badge.peace { background: rgba(143,168,154,0.15); color: var(--emerald); }
+    .power-date-badge.protection { background: rgba(196,102,58,0.15); color: var(--violet); }
+    .power-date-badge.binding { background: rgba(168,82,43,0.15); color: var(--rose); }
+    .power-date-badge.all { background: rgba(201,169,110,0.15); color: var(--gold); }
 
     .power-date-event {
       font-size: 0.72rem;
@@ -825,8 +825,8 @@
       display: none;
       margin-top: 6px;
       padding: 8px 10px;
-      background: rgba(212,175,103,0.06);
-      border: 1px solid rgba(212,175,103,0.2);
+      background: rgba(201,169,110,0.06);
+      border: 1px solid rgba(201,169,110,0.2);
       border-radius: 6px;
     }
 
@@ -907,8 +907,8 @@
     .voc-warning {
       margin-top: 10px;
       padding: 8px 10px;
-      background: rgba(231,76,60,0.08);
-      border: 1px solid rgba(231,76,60,0.2);
+      background: rgba(168,82,43,0.08);
+      border: 1px solid rgba(168,82,43,0.2);
       border-radius: 6px;
       font-size: 0.62rem;
       color: var(--muted);
@@ -1027,8 +1027,8 @@
       font-size: 0.62rem;
       padding: 3px 9px;
       border-radius: 20px;
-      background: rgba(212,175,103,0.12);
-      border: 1px solid rgba(212,175,103,0.3);
+      background: rgba(201,169,110,0.12);
+      border: 1px solid rgba(201,169,110,0.3);
       color: var(--gold);
       letter-spacing: 0.04em;
     }
@@ -1080,8 +1080,8 @@
 
     .cast-counter {
       padding: 8px 10px;
-      background: rgba(46,204,113,0.08);
-      border: 1px solid rgba(46,204,113,0.2);
+      background: rgba(143,168,154,0.08);
+      border: 1px solid rgba(143,168,154,0.2);
       border-radius: 6px;
       display: flex;
       align-items: center;
@@ -1226,9 +1226,9 @@
       font-weight: 600;
     }
 
-    .status-watch { background: rgba(231,76,60,0.15); color: var(--rose); border: 1px solid rgba(231,76,60,0.3); }
-    .status-active { background: rgba(212,175,103,0.15); color: var(--gold); border: 1px solid rgba(212,175,103,0.3); }
-    .status-monitor { background: rgba(155,89,182,0.15); color: var(--violet); border: 1px solid rgba(155,89,182,0.3); }
+    .status-watch { background: rgba(168,82,43,0.15); color: var(--rose); border: 1px solid rgba(168,82,43,0.3); }
+    .status-active { background: rgba(201,169,110,0.15); color: var(--gold); border: 1px solid rgba(201,169,110,0.3); }
+    .status-monitor { background: rgba(196,102,58,0.15); color: var(--violet); border: 1px solid rgba(196,102,58,0.3); }
 
     .focus-area-desc {
       font-size: 0.62rem;
@@ -1238,8 +1238,8 @@
 
     .tracking-template {
       padding: 8px 10px;
-      background: rgba(212,175,103,0.05);
-      border: 1px solid rgba(212,175,103,0.15);
+      background: rgba(201,169,110,0.05);
+      border: 1px solid rgba(201,169,110,0.15);
       border-radius: 6px;
     }
 
@@ -1272,9 +1272,9 @@
       flex-shrink: 0;
     }
 
-    .phase-before { background: rgba(46,204,113,0.12); color: var(--emerald); }
-    .phase-during { background: rgba(212,175,103,0.15); color: var(--gold); }
-    .phase-after  { background: rgba(155,89,182,0.12); color: var(--violet); }
+    .phase-before { background: rgba(143,168,154,0.15); color: var(--emerald); }
+    .phase-during { background: rgba(201,169,110,0.15); color: var(--gold); }
+    .phase-after  { background: rgba(196,102,58,0.15); color: var(--violet); }
 
     .tracking-placeholder {
       color: var(--muted);
@@ -1287,7 +1287,7 @@
       top: -8px;
       right: -8px;
       background: var(--emerald);
-      color: #0a0a1a;
+      color: #1E3329;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.55rem;
       font-weight: 700;
@@ -1387,7 +1387,7 @@
 
     .join-form-input {
       width: 100%;
-      background: #1a1a2e;
+      background: #243D32;
       border: 1px solid var(--gold);
       border-radius: 5px;
       color: var(--white);
@@ -1451,8 +1451,8 @@
     .join-radio-label.binding { color: var(--rose); }
 
     .join-radio-label input[type="radio"].peace      { border-color: var(--emerald); color: var(--emerald); }
-    .join-radio-label input[type="radio"].protection { border-color: var(--violet);  color: var(--violet); }
-    .join-radio-label input[type="radio"].binding    { border-color: var(--rose);    color: var(--rose); }
+    .join-radio-label input[type="radio"].protection { border-color: var(--violet); color: var(--violet); }
+    .join-radio-label input[type="radio"].binding    { border-color: var(--rose); color: var(--rose); }
 
     .join-submit-btn {
       display: block;
@@ -1461,7 +1461,7 @@
       border-radius: 6px;
       border: none;
       background: var(--gold);
-      color: #0a0a1a;
+      color: #1E3329;
       font-family: 'Outfit', sans-serif;
       font-size: 0.72rem;
       font-weight: 700;
@@ -1485,8 +1485,7 @@
       font-size: 0.7rem;
       color: var(--emerald);
       font-weight: 500;
-      text-align: center;
-      padding: 8px 0;
+      padding: 8px 0 4px;
     }
 
     .join-error-msg {
@@ -1497,7 +1496,7 @@
 
     .join-platform-select {
       width: 100%;
-      background: #1a1a2e;
+      background: #243D32;
       border: 1px solid var(--gold);
       border-radius: 5px;
       color: var(--white);
@@ -1509,7 +1508,7 @@
       cursor: pointer;
       appearance: none;
       -webkit-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23d4af67'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23C9A96E'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 8px center;
       padding-right: 24px;
@@ -1521,7 +1520,7 @@
     }
 
     .join-platform-select option {
-      background: #1a1a2e;
+      background: #243D32;
       color: var(--white);
     }
 
@@ -2140,6 +2139,223 @@
         width: 100%;
       }
     }
+
+    /* ===================== PAYMENT GATE MODAL ===================== */
+    .payment-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(14, 26, 20, 0.85);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    .payment-modal-overlay.active {
+      display: flex;
+    }
+
+    .payment-modal {
+      background: var(--surface);
+      border: 1px solid var(--gold);
+      border-radius: 14px;
+      padding: 32px 28px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 16px 64px rgba(0,0,0,0.7);
+      text-align: center;
+      position: relative;
+    }
+
+    .payment-modal-icon {
+      font-size: 2.2rem;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+
+    .payment-modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .payment-modal-price {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 20px;
+    }
+
+    .payment-modal-benefits {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 24px 0;
+      text-align: left;
+      background: rgba(201,169,110,0.06);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .payment-modal-benefits li {
+      font-size: 0.75rem;
+      color: var(--muted);
+      padding: 4px 0;
+      padding-left: 18px;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .payment-modal-benefits li::before {
+      content: '\2022';
+      position: absolute;
+      left: 4px;
+      color: var(--gold);
+    }
+
+    .payment-modal-cta {
+      display: block;
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 8px;
+      border: none;
+      background: #C4663A;
+      color: #F5EDE0;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s ease;
+      margin-bottom: 10px;
+    }
+
+    .payment-modal-cta:hover {
+      opacity: 0.88;
+    }
+
+    .payment-modal-cancel {
+      font-size: 0.65rem;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 4px 8px;
+      transition: color 0.2s ease;
+    }
+
+    .payment-modal-cancel:hover {
+      color: var(--white);
+    }
+
+    /* ===================== POST-PAYMENT TOAST ===================== */
+    .payment-toast {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1500;
+      background: linear-gradient(90deg, #345647, #2D4A3E);
+      border-bottom: 2px solid var(--gold);
+      padding: 12px 20px;
+      text-align: center;
+      animation: toastSlideIn 0.4s ease;
+    }
+
+    .payment-toast.active {
+      display: block;
+    }
+
+    @keyframes toastSlideIn {
+      from { transform: translateY(-100%); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+
+    .payment-toast-text {
+      font-size: 0.82rem;
+      color: var(--gold);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .payment-toast-close {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px 8px;
+    }
+
+    .payment-toast-close:hover {
+      color: var(--white);
+    }
+
+    /* ===================== POST-SIGNUP SUCCESS LINKS ===================== */
+    .join-success-links {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .success-link-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 8px 12px;
+      border-radius: 7px;
+      border: none;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .success-link-btn:hover {
+      opacity: 0.85;
+    }
+
+    .success-link-btn.telegram {
+      background: #8FA89A;
+      color: #1E3329;
+    }
+
+    .success-link-btn.tiktok {
+      background: #C4663A;
+      color: #F5EDE0;
+    }
+
+    .success-next-power {
+      margin-top: 8px;
+      font-size: 0.65rem;
+      color: var(--gold);
+      font-family: 'JetBrains Mono', monospace;
+      text-align: center;
+      line-height: 1.4;
+    }
   </style>
 </head>
 <body>
@@ -2170,7 +2386,7 @@
 
       <label class="layer-item">
         <input type="checkbox" id="toggle-uvg" checked />
-        <span class="layer-dot" style="background:rgba(212,175,103,0.6)"></span>
+        <span class="layer-dot" style="background:rgba(201,169,110,0.6)"></span>
         <span class="layer-label">Becker-Hagens Grid</span>
       </label>
 
@@ -2188,7 +2404,7 @@
 
       <label class="layer-item">
         <input type="checkbox" id="toggle-fol" checked />
-        <span class="layer-dot" style="background:rgba(212,175,103,0.5); border: 1px solid var(--gold)"></span>
+        <span class="layer-dot" style="background:rgba(201,169,110,0.5); border: 1px solid var(--gold)"></span>
         <span class="layer-label">Flower of Life</span>
       </label>
 
@@ -2206,7 +2422,7 @@
 
       <label class="layer-item">
         <input type="checkbox" id="toggle-cities" checked />
-        <span class="layer-dot" style="background:linear-gradient(135deg,#d4af67,#e040fb,#00bcd4); border-radius:1px;"></span>
+        <span class="layer-dot" style="background:linear-gradient(135deg,#C9A96E,#C4663A,#8FA89A); border-radius:1px;"></span>
         <span class="layer-label">Grid Cities</span>
       </label>
     </div>
@@ -2272,7 +2488,7 @@
           </div>
 
           <!-- Power Dates Calendar -->
-          <div class="celestial-section-title">Power Dates 2026 - click for local times</div>
+          <div class="celestial-section-title">Power Dates 2026 - times shown in your local timezone</div>
           <div id="powerDatesList"></div>
 
           <!-- Planetary Hours -->
@@ -2497,7 +2713,138 @@
 
 </div><!-- /app -->
 
+<!-- PAYMENT GATE MODAL -->
+<div class="payment-modal-overlay" id="paymentModalOverlay" role="dialog" aria-modal="true" aria-label="Claim your spot on the grid">
+  <div class="payment-modal">
+    <div class="payment-modal-icon">&#9775;</div>
+    <div class="payment-modal-title">Claim Your Spot on the Grid</div>
+    <div class="payment-modal-price">$1 AUD / month</div>
+    <ul class="payment-modal-benefits">
+      <li>The technology that powers this global grid</li>
+      <li>Communication and power date reminders in your timezone</li>
+      <li>Consistent astrological research and celestial timing</li>
+      <li>Live facilitated spellcast events</li>
+    </ul>
+    <a class="payment-modal-cta" href="https://buy.stripe.com/3cIcN52Tac2XbFs9BzbQY0M" target="_blank" rel="noopener" id="paymentModalBtn">
+      Claim My Spot - $1/mo
+    </a>
+    <button class="payment-modal-cancel" id="paymentModalCancel">Cancel</button>
+  </div>
+</div>
+
+<!-- POST-PAYMENT WELCOME TOAST -->
+<div class="payment-toast" id="paymentToast" role="status" aria-live="polite">
+  <span class="payment-toast-text">Welcome to the Sophia Grid! Claim your spot below.</span>
+  <button class="payment-toast-close" id="paymentToastClose" aria-label="Dismiss">&#10005;</button>
+</div>
+
 <script>
+// =====================================================================
+// PAYMENT GATE
+// =====================================================================
+(function initPaymentGate() {
+  const overlay  = document.getElementById('paymentModalOverlay');
+  const cancelBtn = document.getElementById('paymentModalCancel');
+  const toast    = document.getElementById('paymentToast');
+  const toastClose = document.getElementById('paymentToastClose');
+
+  // Check if paid - URL param or localStorage
+  const params = new URLSearchParams(window.location.search);
+  const hasPaidParam = params.has('paid') || params.has('session_id');
+
+  if (hasPaidParam) {
+    localStorage.setItem('sophia-grid-paid', 'true');
+  }
+
+  const isPaid = localStorage.getItem('sophia-grid-paid') === 'true';
+
+  // Store globally so map click can check
+  window._sophiaGridPaid = isPaid;
+
+  // If returning from Stripe, show welcome toast
+  if (hasPaidParam) {
+    toast.classList.add('active');
+    // Auto-dismiss after 8 seconds
+    setTimeout(function() {
+      toast.classList.remove('active');
+    }, 8000);
+  }
+
+  toastClose && toastClose.addEventListener('click', function() {
+    toast.classList.remove('active');
+  });
+
+  cancelBtn && cancelBtn.addEventListener('click', function() {
+    overlay.classList.remove('active');
+  });
+
+  // Close on overlay backdrop click (not on modal itself)
+  overlay && overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) overlay.classList.remove('active');
+  });
+
+  // Expose show function for map click + city join handlers
+  window._showPaymentGate = function() {
+    overlay.classList.add('active');
+  };
+})();
+
+// =====================================================================
+// LOCAL TIME HELPERS
+// =====================================================================
+function formatLocalDateTime(utcIso) {
+  // Takes a UTC ISO string, returns formatted local time string
+  // e.g. "Apr 2, 2026 - 12:12 PM AEST"
+  try {
+    const d = new Date(utcIso);
+    const datePart = new Intl.DateTimeFormat('en-AU', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    }).format(d);
+
+    const timePart = new Intl.DateTimeFormat('en-AU', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+      timeZoneName: 'short',
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    }).format(d);
+
+    return datePart + ' - ' + timePart;
+  } catch(e) {
+    return utcIso;
+  }
+}
+
+function formatLocalDateOnly(dateStr) {
+  // Takes YYYY-MM-DD, returns local formatted date
+  try {
+    const d = new Date(dateStr + 'T12:00:00Z');
+    return new Intl.DateTimeFormat('en-AU', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    }).format(d);
+  } catch(e) {
+    return dateStr;
+  }
+}
+
+function buildLocalTimeLabel(dateStr, utcTime) {
+  // Returns local time string like "Apr 2, 2026 - 12:12 PM AEST"
+  if (!utcTime) return formatLocalDateOnly(dateStr);
+  try {
+    const [h, m] = utcTime.split(':').map(Number);
+    const [yr, mo, dy] = dateStr.split('-').map(Number);
+    const utcDate = new Date(Date.UTC(yr, mo - 1, dy, h, m, 0));
+    return formatLocalDateTime(utcDate.toISOString());
+  } catch(e) {
+    return dateStr;
+  }
+}
+
 // =====================================================================
 // LUNAR PHASE CALCULATOR
 // =====================================================================
@@ -2546,7 +2893,7 @@ const map = L.map('map', {
   worldCopyJump: true
 });
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
   subdomains: 'abcd',
   maxZoom: 19
@@ -2699,7 +3046,7 @@ uvgEdges.forEach(([a, b]) => {
   const pb = uvgNodes[b];
   if (!pa || !pb) return;
   L.polyline([pa, pb], {
-    color: 'rgba(212,175,103,0.28)',
+    color: 'rgba(201,169,110,0.28)',
     weight: 1,
     opacity: 1,
     dashArray: '4, 6'
@@ -2709,8 +3056,8 @@ uvgEdges.forEach(([a, b]) => {
 Object.entries(uvgNodes).forEach(([id, pos]) => {
   L.circleMarker(pos, {
     radius: 3,
-    color: 'rgba(212,175,103,0.8)',
-    fillColor: 'rgba(212,175,103,0.4)',
+    color: 'rgba(201,169,110,0.8)',
+    fillColor: 'rgba(201,169,110,0.4)',
     fillOpacity: 1,
     weight: 1
   }).bindTooltip(`UVG Node ${id}`, {
@@ -2725,7 +3072,7 @@ Object.entries(uvgNodes).forEach(([id, pos]) => {
 // =====================================================================
 leyLines.forEach(line => {
   L.polyline(line.points, {
-    color: 'rgba(0,188,212,0.55)',
+    color: 'rgba(201,169,110,0.55)',
     weight: 1.5,
     opacity: 1,
     dashArray: '8, 5'
@@ -2734,8 +3081,8 @@ leyLines.forEach(line => {
   line.points.forEach(pt => {
     L.circleMarker(pt, {
       radius: 3,
-      color: 'rgba(0,188,212,0.9)',
-      fillColor: 'rgba(0,188,212,0.5)',
+      color: 'rgba(201,169,110,0.9)',
+      fillColor: 'rgba(201,169,110,0.5)',
       fillOpacity: 1,
       weight: 1
     }).addTo(layerGroups.ley);
@@ -2745,10 +3092,10 @@ leyLines.forEach(line => {
 // =====================================================================
 // DRAW SACRED SITES
 // =====================================================================
-const regionColors = { Iran: '#f39c12', Israel: '#8e44ad', USA: '#27ae60' };
+const regionColors = { Iran: '#C9A96E', Israel: '#C4663A', USA: '#8FA89A' };
 
 sacredSites.forEach(site => {
-  const color = regionColors[site.region] || '#d4af67';
+  const color = regionColors[site.region] || '#C9A96E';
 
   const icon = L.divIcon({
     className: '',
@@ -2787,7 +3134,7 @@ function drawFlowerOfLifeReal(center, radiusKm, prefix, groupLayer) {
   const innerRadiusM = radiusM / 2;
 
   const circleStyle = {
-    color: 'rgba(212,175,103,0.22)',
+    color: 'rgba(201,169,110,0.22)',
     weight: 0.8,
     fill: false,
     opacity: 1,
@@ -2871,7 +3218,7 @@ L.polyline([
   trianglePoints[2],
   trianglePoints[0]
 ], {
-  color: 'rgba(212,175,103,0.75)',
+  color: 'rgba(201,169,110,0.75)',
   weight: 2,
   dashArray: '10, 7',
   opacity: 1
@@ -2881,8 +3228,8 @@ const triangleLabels = ['Jerusalem', 'Persepolis', 'Sedona'];
 trianglePoints.forEach((pt, i) => {
   L.circleMarker(pt, {
     radius: 6,
-    color: 'rgba(212,175,103,1)',
-    fillColor: 'rgba(212,175,103,0.3)',
+    color: 'rgba(201,169,110,1)',
+    fillColor: 'rgba(201,169,110,0.3)',
     fillOpacity: 1,
     weight: 1.5
   }).bindTooltip(triangleLabels[i], {
@@ -2896,9 +3243,9 @@ trianglePoints.forEach((pt, i) => {
 // PRACTITIONER ANCHOR NODES
 // =====================================================================
 const intentionColors = {
-  peace:      '#2ecc71',
-  protection: '#9b59b6',
-  binding:    '#e74c3c'
+  peace:      '#8FA89A',
+  protection: '#C4663A',
+  binding:    '#A8522B'
 };
 
 const intentionLabels = {
@@ -3055,13 +3402,13 @@ setupToggle('toggle-cities',   'cities');
 //   sacred-site  = amber          #ffb300
 //   grid-path    = dim gold       #a08840
 const gridTypeColorMap = {
-  'uvg-vertex':   '#d4af67',
-  'earth-chakra': '#f0f0f0',
-  'apollo-axis':  '#00bcd4',
-  'ley-line':     '#00bcd4',
-  'dragon-line':  '#e040fb',
-  'sacred-site':  '#ffb300',
-  'grid-path':    '#a08840'
+  'uvg-vertex':   '#C9A96E',
+  'earth-chakra': '#F5EDE0',
+  'apollo-axis':  '#8FA89A',
+  'ley-line':     '#8FA89A',
+  'dragon-line':  '#C4663A',
+  'sacred-site':  '#C9A96E',
+  'grid-path':    '#9B8A6A'
 };
 
 const citiesData = [
@@ -3165,152 +3512,104 @@ const citiesData = [
   { name: 'Santiago',       country: 'Chile',        region: 'Grid Paths',     gridType: 'grid-path',    lat: -33.45,  lng: -70.67, gridReason: 'Andean grid path - Santiago sits at the foot of the Andes at the convergence of the Maipo and Mapocho rivers, channelling Andean earth energy into the Pacific basin' }
 ];
 
+// gridType color map (earth tones v3):
+//   uvg-vertex   = warm gold      #C9A96E
+//   earth-chakra = cream          #F5EDE0
+//   apollo-axis  = sage green     #8FA89A
+//   ley-line     = sage green     #8FA89A
+//   dragon-line  = terracotta     #C4663A
+//   sacred-site  = warm gold      #C9A96E
+//   grid-path    = dim gold       #9B8A6A
+
 // Cities layer is now built by rebuildCityMarkers() after Supabase data loads.
 // The initial draw happens inside loadPractitioners() -> rebuildCityMarkers().
-
-// =====================================================================
-// TIMEZONE CONVERTER
-// =====================================================================
-const TZ_ZONES = [
-  { label: 'Sydney (AEST)',       tz: 'Australia/Sydney' },
-  { label: 'Tokyo (JST)',         tz: 'Asia/Tokyo' },
-  { label: 'Mumbai (IST)',        tz: 'Asia/Kolkata' },
-  { label: 'Dubai (GST)',         tz: 'Asia/Dubai' },
-  { label: 'London (GMT)',        tz: 'Europe/London' },
-  { label: 'Paris (CET)',         tz: 'Europe/Paris' },
-  { label: 'New York (EST)',      tz: 'America/New_York' },
-  { label: 'Los Angeles (PST)',   tz: 'America/Los_Angeles' },
-  { label: 'UTC',                 tz: 'UTC' }
-];
-
-function buildTimezoneBlock(dateStr, utcTime) {
-  if (!utcTime) {
-    return `<div class="tz-no-time">No specific time set for this event.</div>`;
-  }
-
-  const [h, m] = utcTime.split(':').map(Number);
-  // Construct a UTC date for this event
-  const [year, month, day] = dateStr.split('-').map(Number);
-  const eventUTC = new Date(Date.UTC(year, month - 1, day, h, m, 0));
-
-  const rows = TZ_ZONES.map(zone => {
-    try {
-      const fmt = new Intl.DateTimeFormat('en-AU', {
-        timeZone: zone.tz,
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-      });
-      const localTime = fmt.format(eventUTC);
-      return `<div class="tz-row">
-        <span class="tz-label">${zone.label}</span>
-        <span class="tz-time">${localTime}</span>
-      </div>`;
-    } catch(e) {
-      return '';
-    }
-  }).join('');
-
-  return `<div class="tz-popup-title">Local Times</div>${rows}`;
-}
+// Timezone converter removed in v3 - times are now auto-converted to visitor local timezone.
 
 // =====================================================================
 // CELESTIAL TIMING PANEL
 // =====================================================================
 (function initCelestialTiming() {
   const powerDates = [
-    { date: '2026-03-03', label: 'Mar 3, 2026',      event: 'Total Lunar Eclipse in Virgo',          intention: 'protection', utcTime: '11:33', notes: 'Blood Moon - deep release, precision work', highlight: true },
-    { date: '2026-03-18', label: 'Mar 18, 2026',     event: 'New Moon in Pisces',                    intention: 'peace',      utcTime: '01:23', notes: 'Spiritual reset, compassion seeding' },
-    { date: '2026-03-20', label: 'Mar 20, 2026',     event: 'Spring Equinox (Venus day)',             intention: 'peace',      utcTime: '14:46', notes: 'Portal opening, equal light/dark', highlight: true },
-    { date: '2026-04-02', label: 'Apr 2, 2026',      event: 'Full Moon in Libra',                    intention: 'peace',      utcTime: '02:12', notes: 'Balance, justice, harmony' },
-    { date: '2026-04-17', label: 'Apr 17, 2026',     event: 'New Moon in Aries',                     intention: 'all',        utcTime: '11:51', notes: 'Fresh starts, cardinal fire' },
-    { date: '2026-05-01', label: 'May 1, 2026',      event: 'Full Moon in Scorpio (Beltane)',         intention: 'binding',    utcTime: '17:23', notes: 'Deep transformation, sacred fire' },
-    { date: '2026-05-31', label: 'May 31, 2026',     event: 'Blue Moon in Sagittarius',              intention: 'peace',      utcTime: '08:45', notes: 'Rare double full moon - expansion' },
-    { date: '2026-06-09', label: 'Jun 9, 2026',      event: 'Venus-Jupiter conjunction 25 Cancer',   intention: 'peace',      utcTime: '12:00', notes: '#1 POWER DATE - hits USA natal Sun', highlight: true },
-    { date: '2026-06-21', label: 'Jun 21, 2026',     event: 'Summer Solstice',                       intention: 'protection', utcTime: '02:25', notes: 'Peak solar power, longest light' },
-    { date: '2026-06-30', label: 'Jun 30, 2026',     event: 'Full Moon in Capricorn',                intention: 'protection', utcTime: '00:57', notes: 'Structure, authority, Saturn energy' },
-    { date: '2026-07-14', label: 'Jul 14, 2026',     event: 'New Moon in Cancer',                    intention: 'peace',      utcTime: null,    notes: 'Nurturing, homeland protection' },
-    { date: '2026-07-29', label: 'Jul 29, 2026',     event: 'Full Moon in Aquarius',                 intention: 'peace',      utcTime: '14:36', notes: 'Collective awakening, humanitarian' },
-    { date: '2026-08-12', label: 'Aug 12, 2026',     event: 'Total Solar Eclipse in Leo',            intention: 'all',        utcTime: '17:46', notes: 'MAJOR - transformation, new chapter', highlight: true },
-    { date: '2026-08-28', label: 'Aug 28, 2026',     event: 'Partial Lunar Eclipse in Pisces',       intention: 'binding',    utcTime: '04:12', notes: 'Release, letting go', highlight: true },
-    { date: '2026-09-22', label: 'Sep 22, 2026',     event: 'Autumn Equinox',                        intention: 'protection', utcTime: '22:05', notes: 'Balance point, harvest' },
-    { date: '2026-09-26', label: 'Sep 26, 2026',     event: 'Full Moon in Aries',                    intention: 'protection', utcTime: '16:49', notes: 'Warrior energy, fierce protection' },
-    { date: '2026-10-18', label: 'Oct 18-20, 2026',  event: 'Dark Moon before Scorpio',              intention: 'binding',    utcTime: '22:00', notes: '#1 binding window', highlight: true },
-    { date: '2026-10-26', label: 'Oct 26, 2026',     event: 'Full Moon in Taurus',                   intention: 'binding',    utcTime: '04:12', notes: 'Earth magic, Iran/Israel axis (both Taurus ruled)' },
-    { date: '2026-12-21', label: 'Dec 21, 2026',     event: 'Winter Solstice',                       intention: 'protection', utcTime: '09:50', notes: 'Return of light, rebirth' }
+    { date: '2026-03-03', event: 'Total Lunar Eclipse in Virgo',          intention: 'protection', utcTime: '11:33', notes: 'Blood Moon - deep release, precision work', highlight: true },
+    { date: '2026-03-18', event: 'New Moon in Pisces',                    intention: 'peace',      utcTime: '01:23', notes: 'Spiritual reset, compassion seeding' },
+    { date: '2026-03-20', event: 'Spring Equinox (Venus day)',             intention: 'peace',      utcTime: '14:46', notes: 'Portal opening, equal light/dark', highlight: true },
+    { date: '2026-04-02', event: 'Full Moon in Libra',                    intention: 'peace',      utcTime: '02:12', notes: 'Balance, justice, harmony' },
+    { date: '2026-04-17', event: 'New Moon in Aries',                     intention: 'all',        utcTime: '11:51', notes: 'Fresh starts, cardinal fire' },
+    { date: '2026-05-01', event: 'Full Moon in Scorpio (Beltane)',         intention: 'binding',    utcTime: '17:23', notes: 'Deep transformation, sacred fire' },
+    { date: '2026-05-31', event: 'Blue Moon in Sagittarius',              intention: 'peace',      utcTime: '08:45', notes: 'Rare double full moon - expansion' },
+    { date: '2026-06-09', event: 'Venus-Jupiter conjunction 25 Cancer',   intention: 'peace',      utcTime: '12:00', notes: '#1 POWER DATE - hits USA natal Sun', highlight: true },
+    { date: '2026-06-21', event: 'Summer Solstice',                       intention: 'protection', utcTime: '02:25', notes: 'Peak solar power, longest light' },
+    { date: '2026-06-30', event: 'Full Moon in Capricorn',                intention: 'protection', utcTime: '00:57', notes: 'Structure, authority, Saturn energy' },
+    { date: '2026-07-14', event: 'New Moon in Cancer',                    intention: 'peace',      utcTime: null,    notes: 'Nurturing, homeland protection' },
+    { date: '2026-07-29', event: 'Full Moon in Aquarius',                 intention: 'peace',      utcTime: '14:36', notes: 'Collective awakening, humanitarian' },
+    { date: '2026-08-12', event: 'Total Solar Eclipse in Leo',            intention: 'all',        utcTime: '17:46', notes: 'MAJOR - transformation, new chapter', highlight: true },
+    { date: '2026-08-28', event: 'Partial Lunar Eclipse in Pisces',       intention: 'binding',    utcTime: '04:12', notes: 'Release, letting go', highlight: true },
+    { date: '2026-09-22', event: 'Autumn Equinox',                        intention: 'protection', utcTime: '22:05', notes: 'Balance point, harvest' },
+    { date: '2026-09-26', event: 'Full Moon in Aries',                    intention: 'protection', utcTime: '16:49', notes: 'Warrior energy, fierce protection' },
+    { date: '2026-10-18', event: 'Dark Moon before Scorpio',              intention: 'binding',    utcTime: '22:00', notes: '#1 binding window', highlight: true },
+    { date: '2026-10-26', event: 'Full Moon in Taurus',                   intention: 'binding',    utcTime: '04:12', notes: 'Earth magic, Iran/Israel axis (both Taurus ruled)' },
+    { date: '2026-12-21', event: 'Winter Solstice',                       intention: 'protection', utcTime: '09:50', notes: 'Return of light, rebirth' }
   ];
+
+  // Expose for use by post-signup success message
+  window._powerDates = powerDates;
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   let nextEvent = null;
-  for (const pd of powerDates) {
-    const d = new Date(pd.date);
-    d.setHours(0, 0, 0, 0);
-    if (d >= today) {
-      nextEvent = pd;
-      nextEvent._dateObj = d;
+  for (var i = 0; i < powerDates.length; i++) {
+    var pd0 = powerDates[i];
+    var d0 = new Date(pd0.date);
+    d0.setHours(0, 0, 0, 0);
+    if (d0 >= today) {
+      nextEvent = pd0;
+      nextEvent._dateObj = d0;
       break;
     }
   }
 
   if (nextEvent) {
-    const daysUntil = Math.round((nextEvent._dateObj - today) / (1000 * 60 * 60 * 24));
+    var daysUntil = Math.round((nextEvent._dateObj - today) / (1000 * 60 * 60 * 24));
     document.getElementById('nextEventName').textContent = nextEvent.event;
-    document.getElementById('nextEventDate').textContent = nextEvent.label + (nextEvent.utcTime ? ' - ' + nextEvent.utcTime + ' UTC' : '');
+    // Auto local time
+    var localLabel0 = buildLocalTimeLabel(nextEvent.date, nextEvent.utcTime);
+    document.getElementById('nextEventDate').textContent = localLabel0;
     document.getElementById('nextEventCountdown').textContent =
-      daysUntil === 0 ? 'TODAY' : `${daysUntil} day${daysUntil === 1 ? '' : 's'} away`;
+      daysUntil === 0 ? 'TODAY' : daysUntil + ' day' + (daysUntil === 1 ? '' : 's') + ' away';
 
     document.getElementById('statsNextPower').textContent = nextEvent.event.length > 22
       ? nextEvent.event.substring(0, 22) + '...'
       : nextEvent.event;
     document.getElementById('statsDaysUntil').textContent =
-      daysUntil === 0 ? 'TODAY' : `${daysUntil} day${daysUntil === 1 ? '' : 's'}`;
+      daysUntil === 0 ? 'TODAY' : daysUntil + ' day' + (daysUntil === 1 ? '' : 's');
   }
 
   // Store next event for share button
   window._nextPowerEvent = nextEvent;
 
-  const list = document.getElementById('powerDatesList');
-  powerDates.forEach(pd => {
-    const d = new Date(pd.date);
+  var list = document.getElementById('powerDatesList');
+  powerDates.forEach(function(pd) {
+    var d = new Date(pd.date);
     d.setHours(0, 0, 0, 0);
-    const isPast = d < today;
-    const card = document.createElement('div');
-    card.className = `power-date-card ${pd.intention}${pd.highlight ? ' highlight' : ''}`;
+    var isPast = d < today;
+    var card = document.createElement('div');
+    card.className = 'power-date-card ' + pd.intention + (pd.highlight ? ' highlight' : '');
     if (isPast) card.style.opacity = '0.45';
 
-    const intentionLabel = pd.intention === 'all' ? 'All' :
+    var intentionLabel = pd.intention === 'all' ? 'All' :
       pd.intention.charAt(0).toUpperCase() + pd.intention.slice(1);
 
-    const utcLabel = pd.utcTime ? ` &bull; ${pd.utcTime} UTC` : '';
+    // Show auto-local time - no more UTC label or timezone popup
+    var localTimeLabel = buildLocalTimeLabel(pd.date, pd.utcTime);
 
-    const tzBlockId = `tz-${pd.date.replace(/-/g, '')}`;
-
-    card.innerHTML = `
-      <div class="power-date-top">
-        <span class="power-date-date">${pd.label}${utcLabel}</span>
-        <span class="power-date-badge ${pd.intention}">${intentionLabel}</span>
-      </div>
-      <div class="power-date-event">${pd.event}</div>
-      <div class="power-date-notes">${pd.notes}</div>
-      <div class="tz-popup" id="${tzBlockId}">
-        ${buildTimezoneBlock(pd.date, pd.utcTime)}
-      </div>
-    `;
-
-    // Click to toggle timezone popup
-    card.addEventListener('click', function() {
-      const tzEl = document.getElementById(tzBlockId);
-      if (!tzEl) return;
-      const isOpen = tzEl.classList.toggle('open');
-      // Close others
-      if (isOpen) {
-        document.querySelectorAll('.tz-popup.open').forEach(el => {
-          if (el.id !== tzBlockId) el.classList.remove('open');
-        });
-      }
-    });
+    card.innerHTML =
+      '<div class="power-date-top">' +
+        '<span class="power-date-date">' + localTimeLabel + '</span>' +
+        '<span class="power-date-badge ' + pd.intention + '">' + intentionLabel + '</span>' +
+      '</div>' +
+      '<div class="power-date-event">' + pd.event + '</div>' +
+      '<div class="power-date-notes">' + pd.notes + '</div>';
 
     list.appendChild(card);
   });
@@ -3399,9 +3698,9 @@ let allPractitioners = [];
 const cityMarkerRefs = {};
 
 const intentionDotColors = {
-  peace:      '#2ecc71',
-  protection: '#9b59b6',
-  binding:    '#e74c3c'
+  peace:      '#8FA89A',
+  protection: '#C4663A',
+  binding:    '#A8522B'
 };
 
 async function loadPractitioners() {
@@ -3475,7 +3774,7 @@ function buildPractitionerListHtml(cityKey) {
   const remainder = list.length - shown.length;
 
   const items = shown.map(p => {
-    const dotColor = intentionDotColors[p.intention] || '#d4af67';
+    const dotColor = intentionDotColors[p.intention] || '#C9A96E';
     const handle = p.tiktok_handle ? p.tiktok_handle.replace(/^@/, '') : '';
     const displayLabel = p.display_name
       ? `${p.display_name} (@${handle})`
@@ -3579,7 +3878,49 @@ window.updateHandlePlaceholder = function(safeCity) {
     : '@yourtiktok';
 };
 
+// =====================================================================
+// POST-SIGNUP SUCCESS HTML BUILDER
+// =====================================================================
+function buildSuccessHtml(firstName) {
+  // Find next upcoming power date in local time
+  var nextPowerLocal = '';
+  if (window._powerDates) {
+    var now = new Date();
+    now.setHours(0, 0, 0, 0);
+    for (var i = 0; i < window._powerDates.length; i++) {
+      var pd = window._powerDates[i];
+      var d = new Date(pd.date);
+      d.setHours(0, 0, 0, 0);
+      if (d >= now) {
+        nextPowerLocal = buildLocalTimeLabel(pd.date, pd.utcTime) + ' - ' + pd.event;
+        break;
+      }
+    }
+  }
+
+  return '<div style="text-align:center;padding:4px 0 2px">' +
+    '<div style="font-size:0.8rem;font-weight:700;color:var(--gold);margin-bottom:6px">Welcome to the Grid, ' + firstName + '!</div>' +
+    '</div>' +
+    '<div class="join-success-links">' +
+      '<a class="success-link-btn telegram" href="https://t.me/sophiagrid" target="_blank" rel="noopener">' +
+        '&#9992; Join Telegram' +
+      '</a>' +
+      '<a class="success-link-btn tiktok" href="https://www.tiktok.com/@kelly_spiritualbadass" target="_blank" rel="noopener">' +
+        '&#9654; Follow on TikTok' +
+      '</a>' +
+    '</div>' +
+    (nextPowerLocal
+      ? '<div class="success-next-power">Your next power date:<br>' + nextPowerLocal + '</div>'
+      : '');
+}
+
 window.handleJoinSubmit = async function(city, country, lat, lng) {
+  // Payment gate check
+  if (!window._sophiaGridPaid) {
+    window._showPaymentGate && window._showPaymentGate();
+    return;
+  }
+
   // Lookup real lat/lng from citiesData (for preset cities)
   const cityEntry = citiesData.find(c => c.name.toLowerCase() === city.toLowerCase() || c.name === city);
   const realLat = cityEntry ? cityEntry.lat : lat;
@@ -3657,7 +3998,7 @@ window.handleJoinSubmit = async function(city, country, lat, lng) {
   if (formWrap) formWrap.style.display = 'none';
   if (successEl) {
     successEl.style.display = 'block';
-    successEl.textContent = 'You\'re in the grid! Welcome, ' + firstName + '.';
+    successEl.innerHTML = buildSuccessHtml(firstName);
   }
 
   // Refresh data
@@ -3729,7 +4070,7 @@ function rebuildAnywhereMarkers(presetCityNames) {
     if (!p.lat || !p.lng) return;
 
     const intention = p.intention || 'peace';
-    const color = intentionDotColors[intention] || '#2ecc71';
+    const color = intentionDotColors[intention] || '#8FA89A';
 
     const icon = L.divIcon({
       className: '',
@@ -3774,9 +4115,12 @@ function rebuildAnywhereMarkers(presetCityNames) {
 let _clickAnywhereCounter = 0;
 
 map.on('click', async function(e) {
-  // Don't fire if a marker was clicked (markers stop propagation via Leaflet internals
-  // but we add a small guard: if a popup is already open on a marker, do nothing)
-  // We use a unique key based on lat/lng rounded to 4dp
+  // Payment gate - show modal if not paid
+  if (!window._sophiaGridPaid) {
+    window._showPaymentGate && window._showPaymentGate();
+    return;
+  }
+
   const lat = e.latlng.lat;
   const lng = e.latlng.lng;
 
@@ -3908,7 +4252,7 @@ window.handleJoinSubmit = async function(city, country, lat, lng) {
     if (formWrap) formWrap.style.display = 'none';
     if (successEl) {
       successEl.style.display = 'block';
-      successEl.textContent = 'You\'re in the grid! Welcome, ' + firstName + '.';
+      successEl.innerHTML = buildSuccessHtml(firstName);
     }
 
     await loadPractitioners();
