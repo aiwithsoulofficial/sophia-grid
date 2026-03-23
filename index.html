@@ -3775,17 +3775,10 @@ function buildPractitionerListHtml(cityKey) {
 
   const items = shown.map(p => {
     const dotColor = intentionDotColors[p.intention] || '#C9A96E';
-    const handle = p.tiktok_handle ? p.tiktok_handle.replace(/^@/, '') : '';
-    const displayLabel = p.display_name
-      ? `${p.display_name} (@${handle})`
-      : `@${handle}`;
-    const platform = p.social_platform || 'tiktok';
-    const profileUrl = platform === 'instagram'
-      ? `https://www.instagram.com/${handle}`
-      : `https://www.tiktok.com/@${handle}`;
+    const displayLabel = p.first_name || p.display_name || 'Practitioner';
     return `<li class="practitioner-list-item">
       <span class="practitioner-intent-dot" style="background:${dotColor}"></span>
-      <a href="${profileUrl}" target="_blank" rel="noopener">${displayLabel}</a>
+      <span>${displayLabel}</span>
     </li>`;
   }).join('');
 
@@ -4079,12 +4072,7 @@ function rebuildAnywhereMarkers(presetCityNames) {
       iconAnchor: [3, 3]
     });
 
-    const handle = p.tiktok_handle ? p.tiktok_handle.replace(/^@/, '') : '';
-    const name   = p.display_name || (handle ? '@' + handle : 'Practitioner');
-    const platform = p.social_platform || 'tiktok';
-    const profileUrl = platform === 'instagram'
-      ? `https://www.instagram.com/${handle}`
-      : `https://www.tiktok.com/@${handle}`;
+    const name = p.first_name || p.display_name || 'Practitioner';
 
     L.marker([p.lat, p.lng], { icon, zIndexOffset: 300 })
       .bindPopup(`
@@ -4099,7 +4087,7 @@ function rebuildAnywhereMarkers(presetCityNames) {
         <ul class="practitioner-list">
           <li class="practitioner-list-item">
             <span class="practitioner-intent-dot" style="background:${color}"></span>
-            <a href="${profileUrl}" target="_blank" rel="noopener">${name}</a>
+            <span>${name}</span>
           </li>
         </ul>
       `, { maxWidth: 240, minWidth: 200 })
